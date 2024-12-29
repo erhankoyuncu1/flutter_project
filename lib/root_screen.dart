@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_project/screens/cart_screen.dart';
+import 'package:flutter_project/screens/cart/cart_screen.dart';
 import 'package:flutter_project/screens/home_screen.dart';
 import 'package:flutter_project/screens/profile_screen.dart';
 import 'package:flutter_project/screens/search_screen.dart';
 
 class RootScreen extends StatefulWidget {
-  const RootScreen({super.key});
+  final int initialIndex;
+  const RootScreen({super.key, required this.initialIndex});
 
   @override
   State<RootScreen> createState() => _RootScreenState();
@@ -20,6 +21,7 @@ class _RootScreenState extends State<RootScreen> {
   void initState(){
     super.initState();
 
+    currentScreen = widget.initialIndex;
     screens = const [
       HomeScreen(),
       SearchScreen(),
@@ -56,7 +58,7 @@ class _RootScreenState extends State<RootScreen> {
               icon: Icon(Icons.search_rounded),
               label: "search",
           ),NavigationDestination(
-              icon: Icon(Icons.shopping_cart_rounded),
+              icon: Icon(Icons.shopping_bag),
               label: "cart",
           ),NavigationDestination(
               icon: Icon(Icons.person_rounded),

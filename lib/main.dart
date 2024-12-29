@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
       return MaterialApp(
         title: 'Flutter Project',
         theme: Styles.themeData(isDarkTheme: themeProvider.getIsDarkTheme, context: context),
-        home:const RootScreen(),
+        home:const RootScreen(initialIndex: 0 ),
       );
 
     }),

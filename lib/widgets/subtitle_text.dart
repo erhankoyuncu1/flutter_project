@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class SubTitleTextWidget extends StatelessWidget {
   const SubTitleTextWidget({super.key,
     required this.label,
-    this.fontSize = 18,
+    this.fontSize = 16,
     this.fontWeight = FontWeight.normal,
     this.fontStyle = FontStyle.normal,
     this.color,
