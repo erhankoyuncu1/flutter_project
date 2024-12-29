@@ -1,15 +1,9 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_project/screens/cart/checkout_screen.dart';
 import 'package:flutter_project/widgets/cart_widget.dart';
 import 'package:flutter_project/widgets/empty_card.dart';
 import 'package:flutter_project/widgets/title_text.dart';
 import 'package:flutter_project/services/assets_manager.dart';
-import 'package:provider/provider.dart';
-
-import '../../providers/theme_provider.dart';
-import '../../widgets/app_name_text.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
