@@ -1,0 +1,8 @@
+# Flutter ve Android için gereksiz dosyalar
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.gradle/
+.idea/
+build/
+*.iml
