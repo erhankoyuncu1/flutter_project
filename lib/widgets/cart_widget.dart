@@ -1,6 +1,7 @@
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
+import 'package:flutter_project/widgets/quantity_bottom_sheet.dart';
 import 'package:flutter_project/widgets/subtitle_text.dart';
 import 'package:flutter_project/widgets/title_text.dart';
 
@@ -21,7 +22,7 @@ class CartWidget extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(12.0),
                 child: FancyShimmerImage(
-                  imageUrl: "http://192.168.96.139:57536/bag/bag2.png",
+                  imageUrl: "http://192.168.96.139:8000/images/bag/bag2.png",
                   height: size.height*0.09,
                   width: size.width*0.2,
                 ),
@@ -58,7 +59,18 @@ class CartWidget extends StatelessWidget {
                         const SubTitleTextWidget(label: "16.00\$", color: Colors.green,),
                         const Spacer(),
                         OutlinedButton.icon(
-                          onPressed: (){},
+                          onPressed: () async{
+                            await  showModalBottomSheet(
+                              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.vertical(top: Radius.circular(40), bottom: Radius.zero)
+                              ),
+                              context: context,
+                              builder: (context){
+                                return const QuantityBottomSheet();
+                              }
+                            );
+                          },
                           icon: const Icon(IconlyLight.arrowDown2),
                           label: Text("Quantity",
                             style: TextStyle(

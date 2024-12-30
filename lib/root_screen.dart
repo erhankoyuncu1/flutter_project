@@ -58,8 +58,13 @@ class _RootScreenState extends State<RootScreen> {
               icon: Icon(Icons.search_rounded),
               label: "search",
           ),NavigationDestination(
-              icon: Icon(Icons.shopping_bag),
-              label: "cart",
+            icon: Badge(
+              backgroundColor: Colors.red,
+              textColor: Colors.white,
+              label: Text("7"),
+              child: Icon(Icons.shopping_bag),
+            ),
+            label: "cart",
           ),NavigationDestination(
               icon: Icon(Icons.person_rounded),
               label: "profile",
