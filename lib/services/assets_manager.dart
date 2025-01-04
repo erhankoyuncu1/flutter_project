@@ -6,6 +6,7 @@ class AssetsManager {
   static String categoriesPath112 = "$categoriesPath/112";
   static String bannerPath = "$imagesPath/banner";
   static String bagPath = "$imagesPath/bag";
+  static String noFavoriteProduct = "$imagesPath/no-favorite-product.png";
 
   static String addMap = "$imagesPath/add_map.png";
   static String error = "$imagesPath/error.png";
@@ -99,6 +100,10 @@ class AssetsManager {
   static String card = "$bagPath/card.png";
   static String card2 = "$bagPath/card2.png";
   static String card3 = "$bagPath/woman.png";
+
+  static String newImagesPath = "assets/new_images";
+  static String recentlyViewedIcon = "$newImagesPath/recently-viewed-products-1.png";
+  static String noOrder = "$newImagesPath/no_order.png";
 
 
 }

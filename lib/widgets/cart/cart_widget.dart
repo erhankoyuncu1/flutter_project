@@ -1,9 +1,10 @@
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
+import 'package:flutter_project/widgets/heart_button_widget.dart';
 import 'package:flutter_project/widgets/quantity_bottom_sheet.dart';
-import 'package:flutter_project/widgets/subtitle_text.dart';
-import 'package:flutter_project/widgets/title_text.dart';
+import 'package:flutter_project/widgets/title/subtitle_text_widget.dart';
+import 'package:flutter_project/widgets/title/title_text_widget.dart';
 
 class CartWidget extends StatelessWidget {
   const CartWidget({super.key});
@@ -47,9 +48,7 @@ class CartWidget extends StatelessWidget {
                             IconButton(
                               onPressed: (){}, icon: const Icon(IconlyLight.closeSquare,size: 20),
                             ),
-                            IconButton(
-                              onPressed: (){}, icon: const Icon(IconlyLight.heart,size: 20,)
-                            )
+                            HeartButtonWidget()
                           ],
                         )
                       ],

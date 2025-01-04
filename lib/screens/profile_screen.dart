@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_project/providers/theme_provider.dart';
+import 'package:flutter_project/screens/auth/login_screen.dart';
+import 'package:flutter_project/screens/orders_screen.dart';
 import 'package:flutter_project/services/assets_manager.dart';
-import 'package:flutter_project/widgets/app_name_text.dart';
-import 'package:flutter_project/widgets/subtitle_text.dart';
-import 'package:flutter_project/widgets/title_text.dart';
+import 'package:flutter_project/widgets/title/app_name_text_widget.dart';
+import 'package:flutter_project/widgets/title/subtitle_text_widget.dart';
+import 'package:flutter_project/widgets/title/title_text_widget.dart';
 import 'package:provider/provider.dart';
+
+import '../services/app_functions.dart';
+import 'init_screens/favorite_products_screen.dart';
+import 'init_screens/viewed_recently_products_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -26,7 +32,7 @@ class ProfileScreen extends StatelessWidget {
           ),
         ),
         title: const AppNameText(
-          FontSize: 20,
+          titleText: "Profile",
         ),
         actions: [
           Padding(
@@ -70,9 +76,11 @@ class ProfileScreen extends StatelessWidget {
                         textStyle: const TextStyle(color: Colors.white),
                         backgroundColor: Colors.green.shade900,
                       ),
-                      onPressed: () {},
-                      icon: const Icon(Icons.login),
-                      label: const Text("Login"),
+                      onPressed: () {
+                        Navigator.of(context).pushNamed(LoginScreen.routName);
+                      },
+                      icon: const Icon(Icons.login,color: Colors.white,),
+                      label: const Text("Login",style: TextStyle(color: Colors.white),),
                     ),
                   ),
                 ],
@@ -146,15 +154,21 @@ class ProfileScreen extends StatelessWidget {
                       CustomListTile(
                           imagePath: AssetsManager.bagImg2,
                           text: "All Orders",
-                          function: () {}),
+                          function: () {
+                            Navigator.pushNamed(context, OrdersScreen.routName);
+                          }),
                       CustomListTile(
                           imagePath: AssetsManager.bagImg1,
                           text: "Favorites",
-                          function: () {}),
+                          function: () {
+                            Navigator.pushNamed(context, FavoriteProductsScreen.routName);
+                          }),
                       CustomListTile(
-                          imagePath: AssetsManager.bagImages4,
+                          imagePath: AssetsManager.recentlyViewedIcon,
                           text: "Viewed Recently",
-                          function: () {}),
+                          function: () {
+                            Navigator.pushNamed(context, ViewedRecentlyProductsScreen.routName);
+                          }),
                       CustomListTile(
                           imagePath: AssetsManager.addMap,
                           text: "Address",
@@ -175,9 +189,16 @@ class ProfileScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(30.0),
                       ),
                     ),
-                    onPressed: () {},
-                    icon: const Icon(Icons.logout),
-                    label: const Text("Logout"),
+                    onPressed: () async{
+                      await AppFunctions.showErrorOrWarningDialog(
+                        context: context,
+                        subtitle: "are you sure ?",
+                        function: () {},
+                        isError: false
+                      );
+                    },
+                    icon: const Icon(Icons.logout,color: Colors.white,),
+                    label: const Text("Logout",style: TextStyle(color: Colors.white),),
                   ),
                 ),
               ],

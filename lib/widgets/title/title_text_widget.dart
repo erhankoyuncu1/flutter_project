@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-class SubTitleTextWidget extends StatelessWidget {
-  const SubTitleTextWidget({super.key,
+class TitleTextWidget extends StatelessWidget {
+  const TitleTextWidget({super.key,
     required this.label,
-    this.fontSize = 16,
+    this.fontSize = 20,
     this.fontWeight = FontWeight.normal,
     this.fontStyle = FontStyle.normal,
     this.color,
@@ -26,9 +26,9 @@ class SubTitleTextWidget extends StatelessWidget {
         fontSize: fontSize,
         fontWeight: fontWeight,
         decoration: textDecoration,
-        color: color,
         fontStyle: fontStyle,
-      ),
+        color: color
+      )
     );
   }
 }

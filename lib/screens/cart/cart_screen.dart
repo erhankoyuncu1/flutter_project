@@ -1,29 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_project/screens/cart/checkout_screen.dart';
-import 'package:flutter_project/widgets/cart_widget.dart';
-import 'package:flutter_project/widgets/empty_card.dart';
-import 'package:flutter_project/widgets/title_text.dart';
+import 'package:flutter_project/widgets/title/app_name_text_widget.dart';
+import 'package:flutter_project/widgets/cart/cart_widget.dart';
+import 'package:flutter_project/widgets/empty_page_widget.dart';
 import 'package:flutter_project/services/assets_manager.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
 
-  final bool isEmpty = false;
+  final bool isEmpty = true;
 
   @override
   Widget build(BuildContext context) {
     return isEmpty ?
     Scaffold (
+      appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Center(
+              child: Image.asset(
+                AssetsManager.bagImages4,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+          title: AppNameText(
+            titleText: "Cart",
+            titleColor: Colors.green,
+          )
+        ),
       body: Visibility(
-        visible: isEmpty,
-          child: EmptyCard(
-              imagePath: AssetsManager.bagImages2,
-              subTitle: "Card is Empty",
-              buttonText: "Go Shopp")
+        child: EmptyPageWidget(
+            imagePath: AssetsManager.bagImages2,
+            subTitle: "Cart is Empty",
+            buttonText: "Go Shopp")
       )
     ):
     Scaffold(
-      bottomSheet: CartCheckout(),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -36,8 +51,9 @@ class CartScreen extends StatelessWidget {
             ),
           ),
         ),
-        title: const TitleTextWidget(label: "Cart (7)",
-          fontSize: 20,
+        title: AppNameText(
+          titleText: "Cart (7)",
+          titleColor: Colors.green,
         ),
         actions: [
           Text("clear all"),
@@ -50,6 +66,7 @@ class CartScreen extends StatelessWidget {
       body: ListView.builder(itemBuilder: (context, index){
         return CartWidget();
       }),
+      bottomSheet: CartCheckout(),
     );
   }
 }

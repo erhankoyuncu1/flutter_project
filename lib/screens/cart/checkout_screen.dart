@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_project/widgets/subtitle_text.dart';
-import 'package:flutter_project/widgets/title_text.dart';
+import 'package:flutter_project/widgets/title/subtitle_text_widget.dart';
+import 'package:flutter_project/widgets/title/title_text_widget.dart';
 
 class CartCheckout extends StatelessWidget {
   const CartCheckout({super.key});
