@@ -5,7 +5,7 @@ import 'package:flutter_project/widgets/empty_page_widget.dart';
 import 'package:flutter_project/widgets/order_widget.dart';
 import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
-import '../widgets/title/app_name_text_widget.dart';
+import '../widgets/titles/app_name_text_widget.dart';
 
 class OrdersScreen extends StatefulWidget {
   static const routName = "/OrdersScreen";

@@ -3,10 +3,10 @@ import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:flutter_project/constans/validator.dart';
 import 'package:flutter_project/screens/auth/forgot_password_screen.dart';
 import 'package:flutter_project/screens/auth/register.dart';
-import 'package:flutter_project/widgets/google_login_button.dart';
-import 'package:flutter_project/widgets/title/app_name_text_widget.dart';
-import 'package:flutter_project/widgets/title/subtitle_text_widget.dart';
-import 'package:flutter_project/widgets/title/title_text_widget.dart';
+import 'package:flutter_project/widgets/buttons/google_login_button.dart';
+import 'package:flutter_project/widgets/titles/app_name_text_widget.dart';
+import 'package:flutter_project/widgets/titles/subtitle_text_widget.dart';
+import 'package:flutter_project/widgets/titles/title_text_widget.dart';
 
 class LoginScreen extends StatefulWidget {
   static const routName = "/LoginScreen";

@@ -1,11 +1,8 @@
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:flutter_project/constans/app_constans.dart';
-import 'package:flutter_project/services/assets_manager.dart';
-import 'package:flutter_project/widgets/title/subtitle_text_widget.dart';
-import 'package:flutter_project/widgets/title/title_text_widget.dart';
+import 'package:flutter_project/widgets/titles/subtitle_text_widget.dart';
+import 'package:flutter_project/widgets/titles/title_text_widget.dart';
 
 class OrderWidget extends StatefulWidget {
   const OrderWidget({super.key});

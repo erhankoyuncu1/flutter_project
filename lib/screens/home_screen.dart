@@ -1,12 +1,13 @@
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_project/constans/app_constans.dart';
+import 'package:flutter_project/providers/product_provider.dart';
 import 'package:flutter_project/providers/theme_provider.dart';
 import 'package:flutter_project/widgets/categories_widget.dart';
 import 'package:flutter_project/widgets/product/top_products_widget.dart';
 import 'package:provider/provider.dart';
-import '../widgets/title/app_name_text_widget.dart';
-import '../widgets/title/title_text_widget.dart';
+import '../widgets/titles/app_name_text_widget.dart';
+import '../widgets/titles/title_text_widget.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen ({super.key});
@@ -14,7 +15,9 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final productProvider = Provider.of<ProductProvider>(context);
     Size size = MediaQuery.of(context).size;
+    
     return Scaffold(
       appBar: AppBar(
           backgroundColor: Colors.transparent,
@@ -88,9 +91,12 @@ class HomeScreen extends StatelessWidget {
                 height: size.height*0.2,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  itemCount: 10,
+                  itemCount: productProvider.getProducts.length,
                   itemBuilder: (context, index){
-                    return TopProductsWidget();
+                    return ChangeNotifierProvider.value(
+                      value: productProvider.getProducts[index],
+                      child: const TopProductsWidget(),
+                    );
                   },
                 ),
               ),

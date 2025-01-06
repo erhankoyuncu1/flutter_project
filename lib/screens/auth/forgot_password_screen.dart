@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 
-import '../../widgets/title/app_name_text_widget.dart';
+import '../../widgets/titles/app_name_text_widget.dart';
+import '../../widgets/titles/subtitle_text_widget.dart';
 
 class ForgetPasswordScreen extends StatefulWidget {
   static String routName = "/ForgetPasswordScreen";
@@ -53,6 +54,18 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
         title: AppNameText(
           titleText: "Forgot Password",
         ),
+      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          const SizedBox(
+            height: 20,
+          ),
+          Padding(
+            padding: EdgeInsets.all(15),
+            child: SubTitleTextWidget(label: "forgot password ?",)
+          )
+        ],
       ),
     );
   }

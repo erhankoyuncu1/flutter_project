@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_project/providers/cart_provider.dart';
 import 'package:flutter_project/screens/cart/cart_screen.dart';
 import 'package:flutter_project/screens/home_screen.dart';
 import 'package:flutter_project/screens/profile_screen.dart';
 import 'package:flutter_project/screens/search_screen.dart';
+import 'package:provider/provider.dart';
 
 class RootScreen extends StatefulWidget {
   final int initialIndex;
@@ -34,6 +36,7 @@ class _RootScreenState extends State<RootScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cartProvider = Provider.of<CartProvider>(context);
     return  Scaffold(
       body: PageView(
         physics: const NeverScrollableScrollPhysics(),
@@ -49,7 +52,7 @@ class _RootScreenState extends State<RootScreen> {
           });
           controller.jumpToPage(currentScreen);
         },
-        destinations: const [
+        destinations: [
           NavigationDestination(
               icon: Icon(Icons.home),
               label: "home",
@@ -59,9 +62,10 @@ class _RootScreenState extends State<RootScreen> {
               label: "search",
           ),NavigationDestination(
             icon: Badge(
+              isLabelVisible: cartProvider.totalItems > 0,
               backgroundColor: Colors.red,
               textColor: Colors.white,
-              label: Text("7"),
+              label: Text("${cartProvider.totalItems}"),
               child: Icon(Icons.shopping_bag),
             ),
             label: "cart",

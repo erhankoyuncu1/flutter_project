@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_project/widgets/title/subtitle_text_widget.dart';
-import 'package:flutter_project/widgets/title/title_text_widget.dart';
+import 'package:flutter_project/widgets/titles/subtitle_text_widget.dart';
+import 'package:flutter_project/widgets/titles/title_text_widget.dart';
+import 'package:provider/provider.dart';
+import '../../providers/cart_provider.dart';
 
 class CartCheckout extends StatelessWidget {
   const CartCheckout({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final cartProvider = Provider.of<CartProvider>(context);
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
@@ -24,11 +27,11 @@ class CartCheckout extends StatelessWidget {
                 Flexible(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
-                    children: const [
+                    children:  [
                       FittedBox(
-                         child: TitleTextWidget(label: "Total 7 product"),                         
+                         child: TitleTextWidget(label: "Total ${cartProvider.items.length} product - ${cartProvider.totalItems} items "),
                        ),
-                      SubTitleTextWidget(label: "check: \$ 112",color: Colors.green, fontWeight: FontWeight.bold, fontSize: 18,)
+                      SubTitleTextWidget(label: "check: \$ ${cartProvider.totalPrice.toStringAsFixed(2)}",color: Colors.green, fontWeight: FontWeight.bold, fontSize: 18,)
                     ],
                   ),
                 ),

@@ -5,9 +5,9 @@ import 'package:flutter_project/services/app_functions.dart';
 import 'package:flutter_project/widgets/image_picker_widget.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../widgets/title/app_name_text_widget.dart';
-import '../../widgets/title/subtitle_text_widget.dart';
-import '../../widgets/title/title_text_widget.dart';
+import '../../widgets/titles/app_name_text_widget.dart';
+import '../../widgets/titles/subtitle_text_widget.dart';
+import '../../widgets/titles/title_text_widget.dart';
 
 class RegisterScreen extends StatefulWidget {
   static const routName = "/RegisterScreen";

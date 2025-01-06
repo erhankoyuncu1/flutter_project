@@ -1,11 +1,15 @@
-import 'dart:developer';
 import 'package:dynamic_height_grid_view/dynamic_height_grid_view.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_project/widgets/title/app_name_text_widget.dart';
+import 'package:flutter_project/models/product_model.dart';
 import 'package:flutter_project/widgets/Product/product_widget.dart';
+import 'package:flutter_project/widgets/titles/app_name_text_widget.dart';
+import 'package:flutter_project/widgets/titles/subtitle_text_widget.dart';
+import 'package:provider/provider.dart';
+import '../providers/product_provider.dart';
 import '../services/assets_manager.dart';
 
 class SearchScreen extends StatefulWidget {
+  static const routName = "/SearchScreen";
   const SearchScreen({super.key});
 
   @override
@@ -33,8 +37,18 @@ class _SearchScreenState extends State<SearchScreen> {
     super.dispose();
   }
 
+  List<ProductModel> productListSearch = [];
+
   @override
   Widget build(BuildContext context) {
+
+    final productProvider = Provider.of<ProductProvider>(context);
+
+    String? filteredCategoryName = ModalRoute.of(context)!.settings.arguments as String?;
+    List<ProductModel> productList = filteredCategoryName == null ?
+    productProvider.products
+      : productProvider.findByCategory(categoryName: filteredCategoryName);
+
     return GestureDetector(
       onTap: (){
         FocusScope.of(context).unfocus();
@@ -52,9 +66,13 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
             ),
           ),
-          title: AppNameText(titleText: "Search product", titleColor: Colors.orange,)
+          title: AppNameText(titleText: filteredCategoryName ?? "Search product", titleColor: Colors.orange,)
         ),
-        body: Padding(
+        body: productList.isEmpty ?
+        const Center(
+          child: SubTitleTextWidget(label: "No Product"),
+        )
+        :Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
@@ -85,20 +103,35 @@ class _SearchScreenState extends State<SearchScreen> {
 
                 },
                 onSubmitted: (value){
-                  log("submitted text is $value");
+                  setState(() {
+                    productListSearch = productProvider.findByProductName
+                      (searchText: searchTextController.text,
+                        searchingProductList: productList);
+                  });
                 },
               ),
               const SizedBox(
                 height: 20,
               ),
+
+              if(searchTextController.text.isNotEmpty && productListSearch.isEmpty)...[
+                const Center(
+                  child: SubTitleTextWidget(label: "No Products found"),
+                )
+              ],
+
               Expanded(
                 child: DynamicHeightGridView(
                   mainAxisSpacing: 12,
                   crossAxisCount: 2,
                   crossAxisSpacing: 12,
-                  itemCount: 50,
+                  itemCount: searchTextController.text.isNotEmpty ?
+                    productListSearch.length :
+                    productList.length,
                   builder: (context, index){
-                    return const ProductWidget();
+                    return  ProductWidget(
+                      productId: searchTextController.text.isNotEmpty ? productListSearch[index].productId
+                      :productList[index].productId);
                   },
                 )
               )

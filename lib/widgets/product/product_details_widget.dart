@@ -1,12 +1,14 @@
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
-import 'package:flutter_project/constans/app_constans.dart';
-import 'package:flutter_project/widgets/title/app_name_text_widget.dart';
-import 'package:flutter_project/widgets/title/subtitle_text_widget.dart';
-import 'package:flutter_project/widgets/title/title_text_widget.dart';
+import 'package:flutter_project/providers/cart_provider.dart';
+import 'package:flutter_project/providers/favorite_list_provider.dart';
+import 'package:flutter_project/widgets/titles/app_name_text_widget.dart';
+import 'package:flutter_project/widgets/titles/subtitle_text_widget.dart';
+import 'package:flutter_project/widgets/titles/title_text_widget.dart';
 import 'package:provider/provider.dart';
 
+import '../../providers/product_provider.dart';
 import '../../providers/theme_provider.dart';
 
 class ProductDetailsWidget extends StatefulWidget {
@@ -22,6 +24,13 @@ class _ProductDetailsState extends State<ProductDetailsWidget> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final productProvider = Provider.of<ProductProvider>(context);
+    final cartProvider = Provider.of<CartProvider>(context);
+    final favoriteProductProvider = Provider.of<FavoriteListProvider>(context);
+
+    String? productId = ModalRoute.of(context)!.settings.arguments as String?;
+    final product = productProvider.findByProductId(productId!);
+    final bool  isAdded = cartProvider.isProductInCart(product!.productId);
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -33,17 +42,20 @@ class _ProductDetailsState extends State<ProductDetailsWidget> {
         icon: const Icon(IconlyLight.arrowLeft2)),
         title: AppNameText(),
       ),
-      body: SingleChildScrollView(
+      body:SingleChildScrollView(
         child: Column(
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 30),
               child: FancyShimmerImage(
                 alignment: Alignment.center,
-                imageUrl: AppConstans.imageUrl,
+                imageUrl: product.productImage,
                 height: size.height*0.25,
                 width: size.width,
                 errorWidget: Icon(Icons.broken_image, size: 50),
+                boxDecoration:BoxDecoration(
+                  borderRadius: BorderRadius.circular(25),
+                )
               ),
             ),
 
@@ -60,7 +72,7 @@ class _ProductDetailsState extends State<ProductDetailsWidget> {
                       Flexible(
                         child: Padding(
                           padding: const EdgeInsets.only(left: 30),
-                          child: Text("title " *25,
+                          child: Text(product.productTitle,
                             softWrap: true,
                             style: const TextStyle(
                                 fontSize: 22,
@@ -76,7 +88,7 @@ class _ProductDetailsState extends State<ProductDetailsWidget> {
                       Padding(
                         padding: const EdgeInsets.only(right: 20, top: 20),
                         child: SubTitleTextWidget(
-                          label: "\$ 16.00",
+                          label: "\$ ${product.productPrice}",
                         ),
                       )
                     ],
@@ -98,16 +110,18 @@ class _ProductDetailsState extends State<ProductDetailsWidget> {
                             child: ElevatedButton.icon(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.red,
-                                iconColor: themeProvider.getIsDarkTheme ? Colors.white : Colors.yellow
+                                iconColor: Colors.white
                               ),
-                              icon: const Icon(IconlyLight.heart),
+                              icon: favoriteProductProvider.isProductInFavorites(product.productId) ? Icon(IconlyBold.heart) : Icon(IconlyLight.heart),
                               label:
-                                Text("Add to favorites",
+                                Text(favoriteProductProvider.isProductInFavorites(product.productId) ? "Favorite" : "Add to favorites",
                                   style: TextStyle(
                                   color: Colors.white
                                 ),
                               ),
-                              onPressed: (){},
+                              onPressed: (){
+                                favoriteProductProvider.addOrRemoveProduct(product.productId);
+                              },
                             ),
                           )
                         ),
@@ -122,14 +136,20 @@ class _ProductDetailsState extends State<ProductDetailsWidget> {
                                 backgroundColor: Colors.blue,
                                 iconColor: Colors.white
                               ),
-                              icon: const Icon(Icons.shopping_cart_outlined),
+                              icon: isAdded ?
+                                Icon(Icons.check) :
+                                Icon(Icons.shopping_cart_outlined),
                               label:
-                                Text("Add to cart",
+                                Text( isAdded ?
+                                  "Product added"
+                                  :"Add to cart",
                                   style: TextStyle(
                                   color: Colors.white
                                 ),
                               ),
-                              onPressed: (){},
+                              onPressed: (){
+                                cartProvider.addItem(product, 1);
+                              },
                             ),
                           )
                         )
@@ -144,8 +164,8 @@ class _ProductDetailsState extends State<ProductDetailsWidget> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        TitleTextWidget(label: "About Product"),
-                        SubTitleTextWidget(label: "Computer stuffs"),
+                        TitleTextWidget(label: "Product Category",fontSize: 14,),
+                        SubTitleTextWidget(label: product.productCategory),
                       ],
                     ),
                   ),
@@ -155,7 +175,7 @@ class _ProductDetailsState extends State<ProductDetailsWidget> {
                   Padding(
                     padding: const EdgeInsets.all(15),
                     child:  SubTitleTextWidget(
-                      label: " A computer is an electronic device that processes data and performs tasks according to a set of instructions called programs. It operates using hardware components such as a central processing unit (CPU), memory (RAM), storage devices (e.g., hard drives or SSDs), and input/output devices like keyboards, mice, and screens. Computers can execute complex calculations, store vast amounts of information, and communicate over networks. They are powered by software, including operating systems like Windows or macOS, and applications for tasks such as word processing, gaming, and web browsing. Modern computers range from desktops and laptops to mobile devices and supercomputers, transforming industries and daily life by enabling automation, connectivity, and advanced problem-solving. ",
+                      label: product.productDescription,
                     )
                   )
                 ],

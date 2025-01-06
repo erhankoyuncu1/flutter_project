@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_project/widgets/title/subtitle_text_widget.dart';
+import 'package:flutter_project/screens/search_screen.dart';
+import 'package:flutter_project/widgets/titles/subtitle_text_widget.dart';
 
 class CategoriesWidgets extends StatelessWidget {
   const CategoriesWidgets({
@@ -12,20 +13,33 @@ class CategoriesWidgets extends StatelessWidget {
   
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Image.asset(
-          imageUrl, height: 50, width: 50,
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        SubTitleTextWidget(
-          label: name,
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-        )
-      ],
+    return GestureDetector(
+      onTap: (){
+        Navigator.pushNamed(context, SearchScreen.routName, arguments: name);
+      },
+      child: Column(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(25),
+            child: Image.asset(
+              imageUrl,
+              height: 50,
+              width: 50,
+              fit: BoxFit.cover,
+            ),
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          SubTitleTextWidget(
+            label: name,
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+          )
+        ],
+      )
     );
+
+
   }
 }

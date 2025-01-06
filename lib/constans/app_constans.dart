@@ -16,11 +16,13 @@ class AppConstans {
 
   static List<CategoryModel> categories = [
     CategoryModel(id: "Phone", name: "Phone", imageUrl: AssetsManager.phone),
-    CategoryModel(id: "Computer", name: "Computer", imageUrl: AssetsManager.computer),
-    CategoryModel(id: "shoes", name: "shoes", imageUrl: AssetsManager.shoes),
+    CategoryModel(id: "Computer", name: "Electronics", imageUrl: AssetsManager.computer),
+    CategoryModel(id: "shoes", name: "Shoes", imageUrl: AssetsManager.shoes),
     CategoryModel(id: "books", name: "books", imageUrl: AssetsManager.bagImg2),
-    CategoryModel(id: "flowers", name: "flowers", imageUrl: AssetsManager.flower),
-    CategoryModel(id: "t-shorts", name: "t-shorts", imageUrl: AssetsManager.tshort),
-    CategoryModel(id: "watch", name: "watch", imageUrl: AssetsManager.watch)
+    CategoryModel(id: "flowers", name: "Kitchen", imageUrl: AssetsManager.flower),
+    CategoryModel(id: "t-shorts", name: "Clothes", imageUrl: AssetsManager.tshort),
+    CategoryModel(id: "watch", name: "Accessories", imageUrl: AssetsManager.watch),
+    CategoryModel(id: "sport", name: "Sport", imageUrl: AssetsManager.sportCategory),
+
   ];
 }

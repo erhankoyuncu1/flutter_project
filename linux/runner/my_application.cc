@@ -23,7 +23,7 @@ static void my_application_activate(GApplication* application) {
   // Use a header bar when running in GNOME as this is the common style used
   // by applications and is the setup most users will be using (e.g. Ubuntu
   // desktop).
-  // If running on X and not using GNOME then just use a traditional title bar
+  // If running on X and not using GNOME then just use a traditional titles bar
   // in case the window manager does more exotic layout, e.g. tiling.
   // If running on Wayland assume the header bar will work (may need changing
   // if future cases occur).

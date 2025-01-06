@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_project/providers/cart_provider.dart';
 import 'package:flutter_project/screens/cart/checkout_screen.dart';
-import 'package:flutter_project/widgets/title/app_name_text_widget.dart';
+import 'package:flutter_project/widgets/titles/app_name_text_widget.dart';
 import 'package:flutter_project/widgets/cart/cart_widget.dart';
 import 'package:flutter_project/widgets/empty_page_widget.dart';
 import 'package:flutter_project/services/assets_manager.dart';
+import 'package:provider/provider.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
 
-  final bool isEmpty = true;
-
   @override
   Widget build(BuildContext context) {
-    return isEmpty ?
-    Scaffold (
+    final cartProvider = Provider.of<CartProvider>(context);
+
+    final bool isEmpty = cartProvider.items.isEmpty;
+
+    return isEmpty
+        ? Scaffold(
       appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -29,16 +33,15 @@ class CartScreen extends StatelessWidget {
           title: AppNameText(
             titleText: "Cart",
             titleColor: Colors.green,
-          )
-        ),
+          )),
       body: Visibility(
-        child: EmptyPageWidget(
+          child: EmptyPageWidget(
             imagePath: AssetsManager.bagImages2,
             subTitle: "Cart is Empty",
-            buttonText: "Go Shopp")
-      )
-    ):
-    Scaffold(
+            buttonText: "Go Shop",
+          )),
+    )
+        : Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -52,21 +55,44 @@ class CartScreen extends StatelessWidget {
           ),
         ),
         title: AppNameText(
-          titleText: "Cart (7)",
+          titleText: "Cart (${cartProvider.totalItems})",
           titleColor: Colors.green,
         ),
         actions: [
-          Text("clear all"),
+          TextButton(
+            onPressed: () {
+              cartProvider.clearCart();
+            },
+            child: const Text(
+              "Clear All",
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
           IconButton(
-              onPressed: (){},
-              icon: const Icon(Icons.delete, color: Colors.red,)
+            onPressed: () {
+              cartProvider.clearCart();
+            },
+            icon: const Icon(
+              Icons.delete,
+              color: Colors.red,
+            ),
           )
         ],
       ),
-      body: ListView.builder(itemBuilder: (context, index){
-        return CartWidget();
-      }),
-      bottomSheet: CartCheckout(),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: cartProvider.items.length,
+              itemBuilder: (context, index) {
+                final cartItem = cartProvider.items.values.toList()[index];
+                return CartWidget(cartItem: cartItem);
+              },
+            ),
+          ),
+          CartCheckout(),
+        ],
+      ),
     );
   }
 }

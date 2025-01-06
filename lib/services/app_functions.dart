@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_project/services/assets_manager.dart';
-import 'package:flutter_project/widgets/title/subtitle_text_widget.dart';
-import 'package:flutter_project/widgets/title/title_text_widget.dart';
+import 'package:flutter_project/widgets/titles/subtitle_text_widget.dart';
+import 'package:flutter_project/widgets/titles/title_text_widget.dart';
 
 class AppFunctions {
   static Future<void> showErrorOrWarningDialog({
