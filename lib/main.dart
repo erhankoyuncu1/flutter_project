@@ -5,6 +5,9 @@ import 'package:flutter_project/providers/product_provider.dart';
 import 'package:flutter_project/providers/theme_provider.dart';
 import 'package:flutter_project/providers/viewed_list_provider.dart';
 import 'package:flutter_project/root_screen.dart';
+import 'package:flutter_project/screens/admin/all_product_screen.dart';
+import 'package:flutter_project/screens/admin/dashboard_screen.dart';
+import 'package:flutter_project/screens/admin/edit_upload_product_screen.dart';
 import 'package:flutter_project/screens/auth/forgot_password_screen.dart';
 import 'package:flutter_project/screens/auth/login_screen.dart';
 import 'package:flutter_project/screens/auth/register.dart';
@@ -47,7 +50,8 @@ class MyApp extends StatelessWidget {
       return MaterialApp(
         title: 'Flutter Project',
         theme: Styles.themeData(isDarkTheme: themeProvider.getIsDarkTheme, context: context),
-        home:const RootScreen(initialIndex: 0),
+        home:const DashboardScreen(),
+        //RootScreen(initialIndex: 0),
         routes: {
           SearchScreen.routName : (context) => const SearchScreen(),
           ProductDetailsWidget.routName : (context) => const ProductDetailsWidget(),
@@ -57,6 +61,8 @@ class MyApp extends StatelessWidget {
           RegisterScreen.routName : (context) => const RegisterScreen(),
           LoginScreen.routName : (context) => const LoginScreen(),
           ForgetPasswordScreen.routName : (context) => const ForgetPasswordScreen(),
+          AllProductScreen.routName : (context) => const AllProductScreen(),
+          EditUploadProductScreen.routName : (context) => const EditUploadProductScreen(),
         },
       );
 
