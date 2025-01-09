@@ -105,6 +105,10 @@ class AssetsManager {
   static String recentlyViewedIcon = "$newImagesPath/recently-viewed-products-1.png";
   static String noOrder = "$newImagesPath/no_order.png";
   static String sportCategory = "$newImagesPath/sports.jpg";
+  static String adminDashboard = "$newImagesPath/admin_dashboard.png";
+  static String addNewProduct = "$newImagesPath/add_new_product.png";
+  static String allProducts = "$newImagesPath/all_products.png";
+  static String orders = "$newImagesPath/orders.png";
 
 
 }
