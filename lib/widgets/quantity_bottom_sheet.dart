@@ -47,7 +47,7 @@ class QuantityBottomSheet extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: SubTitleTextWidget(
-                      label: "${currentQuantity}",
+                      label: "$currentQuantity",
                       color: currentQuantity == quantity
                           ? Colors.green
                           : themeProvider.getIsDarkTheme ? Colors.white : Colors.black,

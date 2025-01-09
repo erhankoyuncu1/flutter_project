@@ -45,11 +45,14 @@ class ProfileScreen extends StatelessWidget {
                     color: Theme.of(context).textTheme.bodyLarge?.color,
                   ),
                 ),
-                Switch(
-                  value: themeProvider.getIsDarkTheme,
-                  onChanged: (value) {
-                    themeProvider.setDarkTheme(themeValue: value);
-                  },
+                Transform.scale(
+                  scale: 0.8,
+                  child: Switch(
+                    value: themeProvider.getIsDarkTheme,
+                    onChanged: (value) {
+                      themeProvider.setDarkTheme(themeValue: value);
+                    },
+                  ),
                 ),
               ],
             ),
