@@ -16,9 +16,7 @@ import '../../widgets/titles/title_text_widget.dart';
 
 class EditUploadProductScreen extends StatefulWidget {
   static const routName = "/EditUploadProductScreen";
-  const EditUploadProductScreen({super.key,
-    this.productModel
-  });
+  const EditUploadProductScreen({super.key, this.productModel});
 
   final ProductModel? productModel;
 
@@ -30,18 +28,18 @@ class _EditUploadProductScreenState extends State<EditUploadProductScreen> {
   final _formKey = GlobalKey<FormState>();
   XFile? _pickedImage;
   late TextEditingController
-    _titleController,
-    _priceController,
-    _descriptionController,
-    _quantityController;
+  _titleController,
+      _priceController,
+      _descriptionController,
+      _quantityController;
   String? _categoryValue;
   bool isEditing = false;
 
-  String?  productNetworkImage;
+  String? productNetworkImage;
 
   @override
-  void  initState(){
-    if(widget.productModel != null) {
+  void initState() {
+    if (widget.productModel != null) {
       isEditing = true;
       productNetworkImage = widget.productModel!.productImage;
       _categoryValue = widget.productModel!.productCategory;
@@ -56,8 +54,8 @@ class _EditUploadProductScreenState extends State<EditUploadProductScreen> {
   }
 
   @override
-  void dispose(){
-    if(mounted){
+  void dispose() {
+    if (mounted) {
       _titleController.dispose();
       _priceController.dispose();
       _descriptionController.dispose();
@@ -66,7 +64,7 @@ class _EditUploadProductScreenState extends State<EditUploadProductScreen> {
     super.dispose();
   }
 
-  void clearForm(){
+  void clearForm() {
     _titleController.clear();
     _priceController.clear();
     _descriptionController.clear();
@@ -82,50 +80,44 @@ class _EditUploadProductScreenState extends State<EditUploadProductScreen> {
     });
   }
 
-  Future<void> addProduct() async{
-    if(_pickedImage == null) {
-      AppFunctions.showErrorOrWarningDialog(context: context, subtitle: "Please add image", function: (){});
+  Future<void> addProduct() async {
+    if (_pickedImage == null) {
+      AppFunctions.showErrorOrWarningDialog(context: context, subtitle: "Please add image", function: () {});
       return;
     }
     final isValid = _formKey.currentState!.validate();
     FocusScope.of(context).unfocus();
-    if(isValid) {}
-
+    if (isValid) {}
   }
 
-  Future<void> editProduct() async{
+  Future<void> editProduct() async {
     final isValid = _formKey.currentState!.validate();
     FocusScope.of(context).unfocus();
 
-    if(_pickedImage == null) {
-      AppFunctions.showErrorOrWarningDialog(context: context, subtitle: "Please add image", function: (){});
+    if (_pickedImage == null) {
+      AppFunctions.showErrorOrWarningDialog(context: context, subtitle: "Please add image", function: () {});
       return;
     }
-    if(isValid) {}
+    if (isValid) {}
   }
 
-  Future<void> localImagePicker() async{
+  Future<void> localImagePicker() async {
     final ImagePicker imagePicker = ImagePicker();
     await AppFunctions.imagePickerDialog(
         context: context,
-        cameraFct: () async{
+        cameraFct: () async {
           _pickedImage = await imagePicker.pickImage(source: ImageSource.camera);
-          setState(() {
-
-          });
+          setState(() {});
         },
-        galleryFct: () async{
+        galleryFct: () async {
           _pickedImage = await imagePicker.pickImage(source: ImageSource.gallery);
-          setState(() {
-
-          });
+          setState(() {});
         },
-        removeFct: () async{
+        removeFct: () async {
           setState(() {
             _pickedImage = null;
           });
-        }
-    );
+        });
   }
 
   @override
@@ -140,12 +132,15 @@ class _EditUploadProductScreenState extends State<EditUploadProductScreen> {
         appBar: AppBar(
           centerTitle: true,
           leading: IconButton(
-            onPressed: (){
-              if(Navigator.canPop(context)){
-               Navigator.pop(context);
+            onPressed: () {
+              if (Navigator.canPop(context)) {
+                Navigator.pop(context);
               }
             },
-            icon: const Icon(IconlyLight.arrowLeft2,color: Colors.purple,),
+            icon: const Icon(
+              IconlyLight.arrowLeft2,
+              color: Colors.purple,
+            ),
           ),
           title: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -156,7 +151,11 @@ class _EditUploadProductScreenState extends State<EditUploadProductScreen> {
                 width: 30,
               ),
               const SizedBox(width: 12),
-              TitleTextWidget(label: isEditing ? "Edit Product" : "Add new product", fontSize: 18,fontWeight: FontWeight.w600,),
+              TitleTextWidget(
+                label: isEditing ? "Edit Product" : "Add new product",
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
             ],
           ),
         ),
@@ -167,18 +166,15 @@ class _EditUploadProductScreenState extends State<EditUploadProductScreen> {
                 const SizedBox(
                   height: 50,
                 ),
-                if(isEditing && productNetworkImage != null)...{
+                if (isEditing && productNetworkImage != null) ...{
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(15),
-                    child: Image.network(
-                      productNetworkImage!,
-                      height: size.width * 0.7,
-                      alignment: Alignment.center,
-                    )
-
-                  )
-                }
-                else if(_pickedImage == null)...{
+                      borderRadius: BorderRadius.circular(15),
+                      child: Image.network(
+                        productNetworkImage!,
+                        height: size.width * 0.7,
+                        alignment: Alignment.center,
+                      ))
+                } else if (_pickedImage == null) ...{
                   SizedBox(
                     width: size.width * 0.4,
                     height: size.width * 0.4,
@@ -195,43 +191,41 @@ class _EditUploadProductScreenState extends State<EditUploadProductScreen> {
                               size: 60,
                               color: Colors.purple,
                             ),
-                            TextButton(onPressed:
-                              (){
-                                localImagePicker();
-                              },
-                              child: SubTitleTextWidget(label:"Select Image", color: Colors.purple,)
-                            )
+                            TextButton(
+                                onPressed: () {
+                                  localImagePicker();
+                                },
+                                child: SubTitleTextWidget(
+                                  label: "Select Image",
+                                  color: Colors.purple,
+                                ))
                           ],
                         ),
-                      )
+                      ),
                     ),
                   )
-                }
-                else...{
+                } else ...{
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12),
                     child: Image.file(
-                      File(
-                        _pickedImage!.path
-                      ),
+                      File(_pickedImage!.path),
                       height: size.width * 0.5,
                       alignment: Alignment.center,
                     ),
                   )
                 },
-                if(_pickedImage != null || productNetworkImage !=null)...{
+                if (_pickedImage != null || productNetworkImage != null) ...{
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       TextButton(
-                        onPressed: () {
-                          localImagePicker();
-                        },
-                        child: SubTitleTextWidget(
-                          label:"Select Image",
-                          color: Colors.purple,
-                        )
-                      )// TextButton
+                          onPressed: () {
+                            localImagePicker();
+                          },
+                          child: SubTitleTextWidget(
+                            label: "Select Image",
+                            color: Colors.purple,
+                          ))
                     ],
                   ),
                 },
@@ -245,13 +239,12 @@ class _EditUploadProductScreenState extends State<EditUploadProductScreen> {
                   dropdownColor: Colors.purple,
                   items: AppConstans.categoriesDropDownList,
                   style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: themeProvider.getIsDarkTheme ? Colors.white : Colors.black
-                  ),
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: themeProvider.getIsDarkTheme ? Colors.white : Colors.black),
                   value: _categoryValue,
-                  hint: Text("Select a category"),
-                  onChanged: (String? value){
+                  hint: const Text("Select a category"),
+                  onChanged: (String? value) {
                     setState(() {
                       _categoryValue = value;
                     });
@@ -259,7 +252,7 @@ class _EditUploadProductScreenState extends State<EditUploadProductScreen> {
                   menuMaxHeight: 200,
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16.0,horizontal: 22.0),
+                  padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 22.0),
                   child: Form(
                     key: _formKey,
                     child: Column(
@@ -274,7 +267,7 @@ class _EditUploadProductScreenState extends State<EditUploadProductScreen> {
                               {required int currentLength,
                                 required bool isFocused,
                                 required int? maxLength}) {
-                           if (currentLength == maxLength) {
+                            if (currentLength == maxLength) {
                               return Text(
                                 '$currentLength/$maxLength',
                                 style: const TextStyle(color: Colors.red),
@@ -290,7 +283,7 @@ class _EditUploadProductScreenState extends State<EditUploadProductScreen> {
                           ),
                           validator: (value) {
                             return AppValidators.uploadProductText(value: _titleController.text, toBeReturnedString: "Please enter a valid title.");
-                          }
+                          },
                         ),
                         const SizedBox(
                           height: 16,
@@ -308,8 +301,7 @@ class _EditUploadProductScreenState extends State<EditUploadProductScreen> {
                                   ),
                                   validator: (value) {
                                     return AppValidators.uploadProductText(value: _priceController.text, toBeReturnedString: "Please enter a valid title");
-                                  }
-                              ),
+                                  }),
                             ),
                             const SizedBox(
                               width: 12,
@@ -325,8 +317,7 @@ class _EditUploadProductScreenState extends State<EditUploadProductScreen> {
                                   ),
                                   validator: (value) {
                                     return AppValidators.uploadProductText(value: _quantityController.text, toBeReturnedString: "Please enter a valid quantity");
-                                  }
-                              ),
+                                  }),
                             ),
                           ],
                         ),
@@ -336,72 +327,44 @@ class _EditUploadProductScreenState extends State<EditUploadProductScreen> {
                         TextFormField(
                           controller: _descriptionController,
                           key: const ValueKey("Description"),
-                          minLines: 3,
-                          maxLines: 8,
-                          maxLength: 250,
-                          buildCounter: (context,
-                              {required int currentLength,
-                                required bool isFocused,
-                                required int? maxLength}) {
-                            if (currentLength == maxLength) {
-                              return Text(
-                                '$currentLength/$maxLength',
-                                style: const TextStyle(color: Colors.red),
-                              );
-                            } else {
-                              return const SizedBox.shrink();
-                            }
-                          },
-                          keyboardType: TextInputType.multiline,
-                          textInputAction: TextInputAction.newline,
+                          maxLength: 200,
+                          maxLines: 3,
                           decoration: const InputDecoration(
                             hintText: "Product Description",
                           ),
                           validator: (value) {
-                            return AppValidators.uploadProductText(
-                                value: _descriptionController.text,
-                                toBeReturnedString: "Please enter a valid description."
-                            );
-                          }
-                        )
+                            return AppValidators.uploadProductText(value: _descriptionController.text, toBeReturnedString: "Please enter a valid description");
+                          },
+                        ),
+                        const SizedBox(
+                          height: 16,
+                        ),
+                        ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                          ),
+                          onPressed: () {
+                            if (isEditing) {
+                              editProduct();
+                            } else {
+                              addProduct();
+                            }
+                          },
+                          icon: Icon(
+                            isEditing ? Icons.done : Icons.add,
+                            color: Colors.white,
+                          ),
+                          label: SubTitleTextWidget(
+                            label: isEditing ? "Edit Product" : "Add Product",
+                            color: Colors.white,
+                          ),
+                        ),
                       ],
-                    )
+                    ),
                   ),
-                )
+                ),
               ],
             ),
-          ),
-        ),
-        bottomSheet: SizedBox(
-          height: kBottomNavigationBarHeight + 40,
-          child: Material(
-            color: Colors.purple.shade400,//Theme.of(context).scaffoldBackgroundColor,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green
-                  ),
-                  onPressed: (){
-                    if(isEditing) {}
-                    else {
-                      addProduct();
-                    }
-                  },
-                  icon: Icon(isEditing ? Icons.done : Icons.add,color: Colors.white,),
-                  label: SubTitleTextWidget(label: isEditing ? "Edit Product" : "Add Product",color: Colors.white,),
-                ),
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red
-                  ),
-                  onPressed: (){},
-                  icon: const Icon(Icons.delete_outline_outlined,color: Colors.white,),
-                  label: SubTitleTextWidget(label: "Clear", color: Colors.white,),
-                )
-              ],
-            )
           ),
         ),
       ),
