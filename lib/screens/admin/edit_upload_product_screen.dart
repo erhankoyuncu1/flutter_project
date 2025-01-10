@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:flutter_project/constans/app_constans.dart';
 import 'package:flutter_project/constans/validator.dart';
+import 'package:flutter_project/providers/theme_provider.dart';
 import 'package:flutter_project/services/assets_manager.dart';
 import 'package:flutter_project/widgets/titles/subtitle_text_widget.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import '../../models/product_model.dart';
 import '../../services/app_functions.dart';
 import '../../widgets/titles/title_text_widget.dart';
@@ -129,6 +131,7 @@ class _EditUploadProductScreenState extends State<EditUploadProductScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -244,9 +247,10 @@ class _EditUploadProductScreenState extends State<EditUploadProductScreen> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
+                    color: themeProvider.getIsDarkTheme ? Colors.white : Colors.black
                   ),
                   value: _categoryValue,
-                  hint: const Text("Select a category"),
+                  hint: Text("Select a category"),
                   onChanged: (String? value){
                     setState(() {
                       _categoryValue = value;
