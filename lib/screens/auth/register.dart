@@ -1,8 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:flutter_project/constans/validator.dart';
+import 'package:flutter_project/root_screen.dart';
 import 'package:flutter_project/services/app_functions.dart';
 import 'package:flutter_project/widgets/image_picker_widget.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../widgets/titles/app_name_text_widget.dart';
@@ -31,8 +34,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
   _passwordRepeatFocusNode;
 
   final _formkey = GlobalKey<FormState>();
-
   XFile? _pickedImage;
+  bool isLoading = false;
+  final auth = FirebaseAuth.instance;
+
   @override
   void initState(){
     _nameController = TextEditingController();
@@ -68,6 +73,40 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> registerFct() async{
     final isValid = _formkey.currentState!.validate();
     FocusScope.of(context).unfocus();
+
+    if(isValid) {
+      try{
+        setState(() {
+          isLoading = true;
+        });
+        await auth.createUserWithEmailAndPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim()
+        );
+        Fluttertoast.showToast(msg: "Account has been created successfully");
+        if(!mounted)
+          return;
+        Navigator.pushReplacementNamed(context, RootScreen.routName);
+      }
+      on FirebaseException catch(error)
+      {
+        await AppFunctions.showErrorOrWarningDialog(
+          context: context,
+          subtitle: error.message.toString(),
+          function: (){}
+        );
+      }
+      catch(error){
+        await AppFunctions.showErrorOrWarningDialog(
+          context: context,
+          subtitle: error.toString(),
+          function: (){}
+        );
+      }
+      finally{
+        isLoading = false;
+      }
+    }
   }
 
   Future<void> localImagePicker() async{
@@ -241,7 +280,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           )
                         ),
                         onFieldSubmitted: (passwordRepeat) async{
-                          await registerFct();
                         },
                         validator: (password) {
                           return AppValidators.passwordValidator(password);

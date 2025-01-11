@@ -36,6 +36,7 @@ class AppFunctions {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Visibility(
+                    visible: isError,
                     child: TextButton(onPressed: (){
                       Navigator.pop(context);
                     },
@@ -59,6 +60,7 @@ class AppFunctions {
                     )
                   ),
                   Visibility(
+                    visible: isError,
                     child: TextButton(onPressed: (){
                       Navigator.pop(context);
                     },
@@ -80,7 +82,31 @@ class AppFunctions {
                         },
                       )
                     )
-                  )
+                  ),
+                  Visibility(
+                    visible: !isError,
+                    child: TextButton(onPressed: (){
+                      Navigator.pop(context);
+                    },
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orangeAccent,
+                        ),
+                        label: Text("OK",
+                          style: TextStyle(
+                            color: Colors.white
+                          ),
+                        ),
+                        icon: Icon(
+                          Icons.done,
+                          color: Colors.white,
+                        ),
+                        onPressed: (){
+                          Navigator.pop(context);
+                        },
+                      )
+                    )
+                  ),
                 ],
               )
             ],

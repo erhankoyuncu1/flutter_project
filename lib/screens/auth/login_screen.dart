@@ -1,12 +1,15 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:flutter_project/constans/validator.dart';
+import 'package:flutter_project/root_screen.dart';
 import 'package:flutter_project/screens/auth/forgot_password_screen.dart';
 import 'package:flutter_project/screens/auth/register.dart';
 import 'package:flutter_project/widgets/buttons/google_login_button.dart';
 import 'package:flutter_project/widgets/titles/app_name_text_widget.dart';
 import 'package:flutter_project/widgets/titles/subtitle_text_widget.dart';
 import 'package:flutter_project/widgets/titles/title_text_widget.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class LoginScreen extends StatefulWidget {
   static const routName = "/LoginScreen";
@@ -24,6 +27,8 @@ class _LoginScreenState extends State<LoginScreen> {
   late final FocusNode _passwordFocusNode;
 
   final _formKey = GlobalKey<FormState>();
+
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -51,7 +56,42 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _loginFct() async{
     final isValid = _formKey.currentState!.validate();
+
+    if(!isValid) {
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
     FocusScope.of(context).unfocus();
+
+    FocusScope.of(context).unfocus();
+
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+      Fluttertoast.showToast(
+        msg: "Login successful!",
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+      );
+
+      Navigator.pushReplacementNamed(context, RootScreen.routName);
+    } on FirebaseAuthException catch (e) {
+      Fluttertoast.showToast(
+        msg: e.message ?? "Login failed.",
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -155,9 +195,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           icon: Icon(IconlyLight.login,color: Colors.white,),
                           label: SubTitleTextWidget(label: "Login",fontWeight: FontWeight.w600,color: Colors.white,),
-                          onPressed: () async{
-                            await  _loginFct();
-                          },
+                          onPressed: _isLoading ? null : () async => await _loginFct(),
                         ),
                       ),
                       const SizedBox(

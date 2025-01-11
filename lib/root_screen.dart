@@ -7,8 +7,9 @@ import 'package:flutter_project/screens/search_screen.dart';
 import 'package:provider/provider.dart';
 
 class RootScreen extends StatefulWidget {
+  static const routName = "/RootScreen";
   final int initialIndex;
-  const RootScreen({super.key, required this.initialIndex});
+  const RootScreen({super.key, this.initialIndex = 0});
 
   @override
   State<RootScreen> createState() => _RootScreenState();

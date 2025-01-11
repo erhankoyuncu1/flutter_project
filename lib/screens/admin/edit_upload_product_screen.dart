@@ -82,7 +82,7 @@ class _EditUploadProductScreenState extends State<EditUploadProductScreen> {
 
   Future<void> addProduct() async {
     if (_pickedImage == null) {
-      AppFunctions.showErrorOrWarningDialog(context: context, subtitle: "Please add image", function: () {});
+      AppFunctions.showErrorOrWarningDialog(context: context, subtitle: "Please add image", function: () {}, isError: false);
       return;
     }
     final isValid = _formKey.currentState!.validate();
@@ -95,7 +95,7 @@ class _EditUploadProductScreenState extends State<EditUploadProductScreen> {
     FocusScope.of(context).unfocus();
 
     if (_pickedImage == null) {
-      AppFunctions.showErrorOrWarningDialog(context: context, subtitle: "Please add image", function: () {});
+      AppFunctions.showErrorOrWarningDialog(context: context, subtitle: "Please add image", function: () {},isError: false  );
       return;
     }
     if (isValid) {}

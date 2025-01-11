@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_project/providers/cart_provider.dart';
 import 'package:flutter_project/providers/favorite_list_provider.dart';
@@ -19,8 +20,12 @@ import 'package:flutter_project/widgets/product/product_details_widget.dart';
 import 'package:provider/provider.dart';
 
 import 'constans/theme_data.dart';
+import 'firebase_options.dart';
 
-void main() {
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   runApp(const MyApp());
 }
 
@@ -48,11 +53,12 @@ class MyApp extends StatelessWidget {
     ],
     child: Consumer<ThemeProvider>(builder:(context, themeProvider, child){
       return MaterialApp(
-        title: 'Flutter Project',
+        title: 'Shopping App',
         theme: Styles.themeData(isDarkTheme: themeProvider.getIsDarkTheme, context: context),
-        home:const DashboardScreen(),
-        //RootScreen(initialIndex: 0),
+        home:const RootScreen(initialIndex: 0),
+        //DashboardScreen(),
         routes: {
+          RootScreen.routName : (context) => const RootScreen(initialIndex: 0),
           SearchScreen.routName : (context) => const SearchScreen(),
           ProductDetailsWidget.routName : (context) => const ProductDetailsWidget(),
           ViewedRecentlyProductsScreen.routName : (context) => const ViewedRecentlyProductsScreen(),
