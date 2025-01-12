@@ -4,11 +4,14 @@ import 'package:flutter_project/providers/cart_provider.dart';
 import 'package:flutter_project/providers/favorite_list_provider.dart';
 import 'package:flutter_project/providers/product_provider.dart';
 import 'package:flutter_project/providers/theme_provider.dart';
+import 'package:flutter_project/providers/user_provider.dart';
 import 'package:flutter_project/providers/viewed_list_provider.dart';
 import 'package:flutter_project/root_screen.dart';
 import 'package:flutter_project/screens/admin/all_product_screen.dart';
+import 'package:flutter_project/screens/admin/all_users_screen.dart';
 import 'package:flutter_project/screens/admin/dashboard_screen.dart';
 import 'package:flutter_project/screens/admin/edit_upload_product_screen.dart';
+import 'package:flutter_project/screens/admin/edit_upload_user_screen.dart';
 import 'package:flutter_project/screens/auth/forgot_password_screen.dart';
 import 'package:flutter_project/screens/auth/login_screen.dart';
 import 'package:flutter_project/screens/auth/register.dart';
@@ -49,16 +52,19 @@ class MyApp extends StatelessWidget {
       }),
       ChangeNotifierProvider(create: (_){
         return ViewedListProvider();
+      }),
+      ChangeNotifierProvider(create: (_){
+        return UserProvider();
       })
     ],
     child: Consumer<ThemeProvider>(builder:(context, themeProvider, child){
       return MaterialApp(
         title: 'Shopping App',
         theme: Styles.themeData(isDarkTheme: themeProvider.getIsDarkTheme, context: context),
-        home:const RootScreen(initialIndex: 0),
-        //DashboardScreen(),
+        home:LoginScreen(),
         routes: {
           RootScreen.routName : (context) => const RootScreen(initialIndex: 0),
+          DashboardScreen.routName : (context) => const DashboardScreen(),
           SearchScreen.routName : (context) => const SearchScreen(),
           ProductDetailsWidget.routName : (context) => const ProductDetailsWidget(),
           ViewedRecentlyProductsScreen.routName : (context) => const ViewedRecentlyProductsScreen(),
@@ -69,6 +75,8 @@ class MyApp extends StatelessWidget {
           ForgetPasswordScreen.routName : (context) => const ForgetPasswordScreen(),
           AllProductScreen.routName : (context) => const AllProductScreen(),
           EditUploadProductScreen.routName : (context) => const EditUploadProductScreen(),
+          AllUsersScreen.routName : (context) => const AllUsersScreen(),
+          EditUploadUserScreen.routName : (context) => const EditUploadUserScreen(),
         },
       );
 

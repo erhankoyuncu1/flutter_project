@@ -1,12 +1,11 @@
 import 'package:dynamic_height_grid_view/dynamic_height_grid_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:flutter_project/widgets/admin/product/product_widget.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/product_model.dart';
 import '../../providers/product_provider.dart';
-import '../../services/assets_manager.dart';
-import '../../widgets/Product/product_widget.dart';
 import '../../widgets/titles/app_name_text_widget.dart';
 import '../../widgets/titles/subtitle_text_widget.dart';
 
@@ -46,10 +45,7 @@ class _AllProductScreenState extends State<AllProductScreen> {
 
     final productProvider = Provider.of<ProductProvider>(context);
 
-    String? filteredCategoryName = ModalRoute.of(context)!.settings.arguments as String?;
-    List<ProductModel> productList = filteredCategoryName == null ?
-    productProvider.products
-        : productProvider.findByCategory(categoryName: filteredCategoryName);
+    List<ProductModel> productList = productProvider.products;
 
     return GestureDetector(
       onTap: (){
@@ -58,17 +54,20 @@ class _AllProductScreenState extends State<AllProductScreen> {
       child: Scaffold(
         appBar: AppBar(
             backgroundColor: Colors.transparent,
+            centerTitle: true,
             elevation: 0,
             leading: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Center(
-                child: Image.asset(
-                  AssetsManager.search,
-                  fit: BoxFit.contain,
-                ),
-              ),
+                padding: const EdgeInsets.all(12.0),
+                child: IconButton(
+                    icon: const Icon(IconlyLight.arrowLeft2,color: Colors.blue),
+                    onPressed: () {
+                      if (Navigator.canPop(context)) {
+                        Navigator.pop(context);
+                      }
+                    }
+                )
             ),
-            title: AppNameText(titleText: filteredCategoryName ?? "All products", titleColor: Colors.blue,)
+            title: AppNameText(titleText:"All Products", titleColor: Colors.blue,)
         ),
         body: productList.isEmpty ?
         const Center(
@@ -101,9 +100,6 @@ class _AllProductScreenState extends State<AllProductScreen> {
                   )
                       : null,
                 ),
-                onChanged: (value) {
-
-                },
                 onSubmitted: (value){
                   setState(() {
                     productListSearch = productProvider.findByProductName
@@ -123,19 +119,19 @@ class _AllProductScreenState extends State<AllProductScreen> {
               ],
 
               Expanded(
-                  child: DynamicHeightGridView(
-                    mainAxisSpacing: 12,
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 12,
-                    itemCount: searchTextController.text.isNotEmpty ?
-                    productListSearch.length :
-                    productList.length,
-                    builder: (context, index){
-                      return  AdminProductWidget(
-                          productId: searchTextController.text.isNotEmpty ? productListSearch[index].productId
-                              :productList[index].productId);
-                    },
-                  )
+                child: DynamicHeightGridView(
+                  mainAxisSpacing: 12,
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  itemCount: searchTextController.text.isNotEmpty ?
+                  productListSearch.length :
+                  productList.length,
+                  builder: (context, index){
+                    return  AdminProductWidget(
+                        productId: searchTextController.text.isNotEmpty ? productListSearch[index].productId
+                            :productList[index].productId);
+                  },
+                )
               )
             ],
           ),

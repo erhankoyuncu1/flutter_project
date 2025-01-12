@@ -17,10 +17,6 @@ class _OrderWidgetState extends State<OrderWidget> {
     final Size size = MediaQuery.of(context).size;
     return InkWell(
       onTap: (){
-        AlertDialog(
-          backgroundColor: Colors.black,
-          title: Text("You click this order"),
-        );
       },
       child: Row(
         children: [

@@ -28,10 +28,10 @@ class _EditUploadProductScreenState extends State<EditUploadProductScreen> {
   final _formKey = GlobalKey<FormState>();
   XFile? _pickedImage;
   late TextEditingController
-  _titleController,
-      _priceController,
-      _descriptionController,
-      _quantityController;
+    _titleController,
+    _priceController,
+    _descriptionController,
+    _quantityController;
   String? _categoryValue;
   bool isEditing = false;
 

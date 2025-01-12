@@ -1,11 +1,17 @@
+import 'dart:developer';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:flutter_project/constans/validator.dart';
+import 'package:flutter_project/models/user_model.dart';
 import 'package:flutter_project/root_screen.dart';
+import 'package:flutter_project/screens/admin/dashboard_screen.dart';
 import 'package:flutter_project/screens/auth/forgot_password_screen.dart';
 import 'package:flutter_project/screens/auth/register.dart';
 import 'package:flutter_project/widgets/buttons/google_login_button.dart';
+import 'package:flutter_project/widgets/loading_widget.dart';
 import 'package:flutter_project/widgets/titles/app_name_text_widget.dart';
 import 'package:flutter_project/widgets/titles/subtitle_text_widget.dart';
 import 'package:flutter_project/widgets/titles/title_text_widget.dart';
@@ -29,6 +35,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
 
   bool _isLoading = false;
+  final auth = FirebaseAuth.instance;
+  late UserModel currentUser;
 
   @override
   void initState() {
@@ -54,10 +62,10 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  Future<void> _loginFct() async{
+  Future<void> _loginFct() async {
     final isValid = _formKey.currentState!.validate();
 
-    if(!isValid) {
+    if (!isValid) {
       return;
     }
 
@@ -67,23 +75,48 @@ class _LoginScreenState extends State<LoginScreen> {
 
     FocusScope.of(context).unfocus();
 
-    FocusScope.of(context).unfocus();
-
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
+
+      String uid = userCredential.user?.uid ?? '';
+
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+
+      if (userDoc.exists) {
+        bool isAdmin = userDoc['isAdmin'];
+
+        if (isAdmin) {
+          Navigator.pushReplacementNamed(context, DashboardScreen.routName);
+        } else {
+          Navigator.pushReplacementNamed(context, RootScreen.routName);
+        }
+      } else {
+        Fluttertoast.showToast(
+          msg: "User data not found.",
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+        );
+      }
+
       Fluttertoast.showToast(
         msg: "Login successful!",
         backgroundColor: Colors.green,
         textColor: Colors.white,
       );
-
-      Navigator.pushReplacementNamed(context, RootScreen.routName);
     } on FirebaseAuthException catch (e) {
+      log('Error code: ${e.code}');
+      log('Error message: ${e.message}');
+      String errorMessage = "Login failed. Please try later...";
+      if (e.code == 'user-not-found') {
+        errorMessage = "No user found for that email.";
+      } else if (e.code == 'wrong-password') {
+        errorMessage = "Wrong password provided for that user.";
+      }
       Fluttertoast.showToast(
-        msg: e.message ?? "Login failed.",
+        msg: errorMessage,
         backgroundColor: Colors.red,
         textColor: Colors.white,
       );
@@ -93,6 +126,7 @@ class _LoginScreenState extends State<LoginScreen> {
       });
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -104,18 +138,14 @@ class _LoginScreenState extends State<LoginScreen> {
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          leading: IconButton(onPressed: (){
-            if(Navigator.canPop(context)){
-              Navigator.pop(context);
-            }
-          },
-              icon: const Icon(IconlyLight.arrowLeft2,color: Colors.purple,)),
           title: AppNameText(),
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: SingleChildScrollView(
-            child: Column(
+        body:LoadingWidget(
+          isLoading: _isLoading,
+          child:  Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: SingleChildScrollView(
+              child: Column(
               children: [
                 const Align(
                   alignment: Alignment.centerLeft,
@@ -208,6 +238,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
+                          //guest user
                           ElevatedButton.icon(
                             icon: Icon(Icons.person,color: Colors.white,),
                             label: SubTitleTextWidget(label: "Guest",color: Colors.white,),
@@ -215,11 +246,13 @@ class _LoginScreenState extends State<LoginScreen> {
                               backgroundColor: Colors.redAccent
                             ),
                             onPressed: () async{
+                              Navigator.of(context).pushNamed(RootScreen.routName);
                             },
                           ),
                           const SizedBox(
                             width: 20,
                           ),
+                          //sign in with google account
                           GoogleLoginButtonWidget()
                         ],
                       ),
@@ -247,9 +280,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 )
               ],
             ),
+            ),
           ),
         ),
-      ),
+      )
     );
   }
 }

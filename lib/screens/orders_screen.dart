@@ -23,12 +23,13 @@ class _OrdersScreenState extends State<OrdersScreen> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        leading: IconButton(onPressed: (){
-          if(Navigator.canPop(context)){
-            Navigator.pop(context);
-          }
-        },
-            icon: const Icon(IconlyLight.arrowLeft2,color: Colors.purple,)),
+          leading: IconButton(onPressed: (){
+            if(Navigator.canPop(context)){
+              Navigator.pop(context);
+            }
+          },
+          icon: const Icon(IconlyLight.arrowLeft2,color: Colors.purple,)
+        ),
         title: AppNameText(
           titleText: "All Orders",
         ),

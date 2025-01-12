@@ -54,6 +54,7 @@ class AppFunctions {
                           color: Colors.white,
                         ),
                         onPressed: (){
+                          function();
                           Navigator.pop(context);
                         },
                       )

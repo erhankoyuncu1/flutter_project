@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
@@ -5,6 +6,7 @@ import 'package:flutter_project/constans/validator.dart';
 import 'package:flutter_project/root_screen.dart';
 import 'package:flutter_project/services/app_functions.dart';
 import 'package:flutter_project/widgets/image_picker_widget.dart';
+import 'package:flutter_project/widgets/loading_widget.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -83,6 +85,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
           email: _emailController.text.trim(),
           password: _passwordController.text.trim()
         );
+        final User? user = auth.currentUser;
+        final String uid = user!.uid;
+
+        await FirebaseFirestore.instance.collection("users").doc(uid).set({
+          'userId': uid,
+          'userName' : _nameController.text,
+          'userImage' : "",
+          'userEmail' : _emailController.text.toLowerCase(),
+          'userPassword' : _passwordController.text,
+          'isAdmin' : false,
+          'createdAt' : Timestamp.now(),
+          'userCart' : [],
+          'userFavoriteList' : [],
+          'userAddressList' : []
+        });
         Fluttertoast.showToast(msg: "Account has been created successfully");
         if(!mounted)
           return;
@@ -153,10 +170,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
               titleText: "Register Page",
             ),
           ),
-        body: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: SingleChildScrollView(
-            child: Column(
+        body: LoadingWidget(
+          isLoading: isLoading,
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: SingleChildScrollView(
+              child: Column(
               children: [
                 const SizedBox(
                   height: 60,
@@ -195,7 +214,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         textInputAction: TextInputAction.next,
                         keyboardType: TextInputType.text,
                         decoration: const InputDecoration(
-                          hintText: "Name",
+                          hintText: "Full Name",
                           prefixIcon: Icon(Icons.drive_file_rename_outline)
                         ),
                         onFieldSubmitted: (value) {
@@ -310,6 +329,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 )
               ]
             )
+          )
           )
         )
       )

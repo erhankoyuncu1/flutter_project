@@ -1,14 +1,18 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_project/models/user_model.dart';
 import 'package:flutter_project/providers/theme_provider.dart';
 import 'package:flutter_project/screens/auth/login_screen.dart';
 import 'package:flutter_project/screens/orders_screen.dart';
+import 'package:flutter_project/services/app_functions.dart';
 import 'package:flutter_project/services/assets_manager.dart';
+import 'package:flutter_project/widgets/loading_widget.dart';
 import 'package:flutter_project/widgets/titles/app_name_text_widget.dart';
 import 'package:flutter_project/widgets/titles/subtitle_text_widget.dart';
 import 'package:flutter_project/widgets/titles/title_text_widget.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
+import '../providers/user_provider.dart';
 import 'init_screens/favorite_products_screen.dart';
 import 'init_screens/viewed_recently_products_screen.dart';
 
@@ -19,64 +23,99 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen>{
-
+class _ProfileScreenState extends State<ProfileScreen> with AutomaticKeepAliveClientMixin{
+  @override
+  bool  get wantKeepAlive => true;
   User? user = FirebaseAuth.instance.currentUser;
+  UserModel? userModel;
+  bool _isLoading = false;
+
+  Future<void> fetchUserInfo() async {
+    final userProvider = Provider.of<UserProvider>(context,listen: false);
+    try{
+      setState(() {
+        _isLoading = true;
+      });
+      userModel = await userProvider.fetchUserInfo();
+    }
+    catch(error){
+      await AppFunctions.showErrorOrWarningDialog(
+        context: context,
+        subtitle: error.toString(),
+        function: (){},
+      );
+    }
+    finally{
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
-    Widget build(BuildContext context) {
-      final themeProvider = Provider.of<ThemeProvider>(context);
-      return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          leading: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Center(
-              child: Image.asset(
-                AssetsManager.login,
-                fit: BoxFit.contain,
-              ),
+  void initState(){
+    fetchUserInfo();
+    super.initState();
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Center(
+            child: Image.asset(
+              AssetsManager.login,
+              fit: BoxFit.contain,
             ),
           ),
-          title: const AppNameText(
-            titleText: "Profile",
-          ),
-          actions: [
-            Padding(
-              padding: const EdgeInsets.only(right: 16.0),
-              child: Row(
-                children: [
-                  Text(
-                    themeProvider.getIsDarkTheme ? "Dark Mode" : "Light Mode",
-                    style: TextStyle(
-                      color: Theme.of(context).textTheme.bodyLarge?.color,
-                    ),
-                  ),
-                  Transform.scale(
-                    scale: 0.8,
-                    child: Switch(
-                      value: themeProvider.getIsDarkTheme,
-                      onChanged: (value) {
-                        themeProvider.setDarkTheme(themeValue: value);
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
         ),
-        body: Column(
+        title: const AppNameText(
+          titleText: "Profile",
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: Row(
+              children: [
+                Text(
+                  themeProvider.getIsDarkTheme ? "Dark Mode" : "Light Mode",
+                  style: TextStyle(
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
+                  ),
+                ),
+                Transform.scale(
+                  scale: 0.8,
+                  child: Switch(
+                    value: themeProvider.getIsDarkTheme,
+                    onChanged: (value) {
+                      themeProvider.setDarkTheme(themeValue: value);
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+      body:LoadingWidget(
+        isLoading: _isLoading,
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Not Logged In User Page
             Visibility(
-              visible: (user == null),
+              visible: user == null || userModel == null,
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     TitleTextWidget(label: "Please Login"),
@@ -100,7 +139,7 @@ class _ProfileScreenState extends State<ProfileScreen>{
             ),
             // Logged In User Page
             Visibility(
-              visible: user!=null ,
+              visible: user!=null && userModel != null,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -121,12 +160,13 @@ class _ProfileScreenState extends State<ProfileScreen>{
                               width: 3,
                             ),
                           ),
-                          child: ClipOval(
+                          child: (userModel != null && userModel!.userImage.isNotEmpty) ?
+                          ClipOval(
                             child: Image.asset(
-                              AssetsManager.computer,
+                              userModel!.userImage,
                               fit: BoxFit.fill,
                             ),
-                          ),
+                          ):SizedBox.shrink(),
                         ),
                         const SizedBox(
                           width: 10,
@@ -134,9 +174,9 @@ class _ProfileScreenState extends State<ProfileScreen>{
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            TitleTextWidget(label: "Erhan Koyuncu"),
+                            TitleTextWidget(label: userModel?.userName ?? "User",),
                             SubTitleTextWidget(
-                                label: user?.email ?? "no user"),
+                                label: user?.email ?? "example@gmail.com"),
                           ],
                         ),
                       ],
@@ -201,13 +241,22 @@ class _ProfileScreenState extends State<ProfileScreen>{
                         ),
                       ),
                       onPressed: () async{
-                        try{
-                          await FirebaseAuth.instance.signOut();
-                          Fluttertoast.showToast(msg: "Sign out successful");
-                        }
-                        catch(error){
-                          Fluttertoast.showToast(msg: "Sign out failed");
-                        }
+                        await AppFunctions.showErrorOrWarningDialog(
+                          context: context,
+                          subtitle: "Are you sure ?",
+                          function: () async {
+                            try{
+                              await  FirebaseAuth.instance.signOut();
+                              Fluttertoast.showToast(msg: "Sign out successful");
+                              setState(() {
+                                user = null;
+                              });
+                            }
+                            catch(error){
+                              Fluttertoast.showToast(msg: "Sign out failed");
+                            }
+                          }
+                        );
                       },
                       icon: const Icon(Icons.logout,color: Colors.white,),
                       label: const Text("Logout",style: TextStyle(color: Colors.white),),
@@ -218,8 +267,9 @@ class _ProfileScreenState extends State<ProfileScreen>{
             ),
           ],
         ),
-      );
-    }
+      )
+    );
+  }
 }
 
 class CustomListTile extends StatelessWidget {
