@@ -7,6 +7,7 @@ import 'package:flutter_project/widgets/buttons/heart_button_widget.dart';
 import 'package:flutter_project/widgets/product/product_details_widget.dart';
 import 'package:flutter_project/widgets/titles/subtitle_text_widget.dart';
 import 'package:provider/provider.dart';
+import '../../models/product_model.dart';
 import '../titles/title_text_widget.dart';
 
 class ProductWidget extends StatefulWidget {
@@ -29,7 +30,33 @@ class _ProductWidgetState extends State<ProductWidget> {
     final productProvider = Provider.of<ProductProvider>(context);
     final cartProvider = Provider.of<CartProvider>(context);
     final viewedListProvider = Provider.of<ViewedListProvider>(context);
-    final product = productProvider.findByProductId(widget.productId);
+    return FutureBuilder<ProductModel?>(
+        future: productProvider.fetchProductByProductId(widget.productId),
+    builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+    return
+      Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.purple),
+              strokeWidth: 6,
+            ),
+            SizedBox(height: 15),
+            Text(
+              'Loading...',
+              style: TextStyle(fontSize: 18, color: Colors.purple),
+            ),
+          ],
+        ),
+      );
+    } else if (snapshot.hasError) {
+    return Center(child: Text('An error occurred!'));
+    } else if (!snapshot.hasData) {
+    return Center(child: Text('No product found'));
+    } else {
+    final product = snapshot.data!;
 
     return product == null
         ? SizedBox.shrink()
@@ -119,4 +146,4 @@ class _ProductWidgetState extends State<ProductWidget> {
       ),
     );
   }
-}
+});}}

@@ -5,6 +5,7 @@ import 'package:flutter_project/providers/viewed_list_provider.dart';
 import 'package:flutter_project/widgets/buttons/cart_button_widget.dart';
 import 'package:flutter_project/widgets/product/product_details_widget.dart';
 import 'package:provider/provider.dart';
+import '../../models/product_model.dart';
 import '../buttons/heart_button_widget.dart';
 import '../titles/subtitle_text_widget.dart';
 import '../titles/title_text_widget.dart';
@@ -21,7 +22,19 @@ class FavoriteProductWidget extends StatelessWidget {
     Size size = MediaQuery.of(context).size;
     final productProvider = Provider.of<ProductProvider>(context);
     final viewedListProvider = Provider.of<ViewedListProvider>(context);
-    final product = productProvider.findByProductId(productId);
+
+    return FutureBuilder<ProductModel?>(
+        future: productProvider.fetchProductByProductId(productId),
+    builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+    return CircularProgressIndicator();
+    } else if (snapshot.hasError) {
+    return Center(child: Text('An error occurred!'));
+    } else if (!snapshot.hasData) {
+    return Center(child: Text('No product found'));
+    } else {
+    final product = snapshot.data!;
+
     return FittedBox(
       child: IntrinsicWidth(
         stepHeight: 50,
@@ -96,4 +109,4 @@ class FavoriteProductWidget extends StatelessWidget {
       ),
     );
   }
-}
+});}}

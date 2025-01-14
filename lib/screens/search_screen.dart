@@ -1,7 +1,9 @@
 import 'package:dynamic_height_grid_view/dynamic_height_grid_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_project/models/product_model.dart';
+import 'package:flutter_project/services/app_functions.dart';
 import 'package:flutter_project/widgets/Product/product_widget.dart';
+import 'package:flutter_project/widgets/loading_widget.dart';
 import 'package:flutter_project/widgets/titles/app_name_text_widget.dart';
 import 'package:flutter_project/widgets/titles/subtitle_text_widget.dart';
 import 'package:provider/provider.dart';
@@ -19,9 +21,13 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   late TextEditingController searchTextController;
   bool hasText = false;
+  List<ProductModel> productList = [];
+  String? filteredCategoryName;
+  bool _isLoading = false;
 
   @override
   void initState(){
+    loadProducts();
     super.initState();
     searchTextController = TextEditingController();
     searchTextController.addListener((){
@@ -39,15 +45,32 @@ class _SearchScreenState extends State<SearchScreen> {
 
   List<ProductModel> productListSearch = [];
 
+  Future<void> loadProducts()  async {
+    final productProvider = Provider.of<ProductProvider>(context, listen: false);
+    try{
+      setState(() {
+        _isLoading = true;
+      });
+      productProvider.fetchProducts();
+      productList = productProvider.getProducts;
+      filteredCategoryName = ModalRoute.of(context)!.settings.arguments as String?;
+      productList = filteredCategoryName == null ?
+      productProvider.getProducts
+          : productProvider.findByCategory(categoryName: filteredCategoryName!);
+    }
+    catch(err){
+      AppFunctions.showErrorOrWarningDialog(context: context, subtitle: err.toString(), function: (){});
+    }
+    finally{
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-
     final productProvider = Provider.of<ProductProvider>(context);
-
-    String? filteredCategoryName = ModalRoute.of(context)!.settings.arguments as String?;
-    List<ProductModel> productList = filteredCategoryName == null ?
-    productProvider.products
-      : productProvider.findByCategory(categoryName: filteredCategoryName);
 
     return GestureDetector(
       onTap: (){
@@ -68,77 +91,80 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
           title: AppNameText(titleText: filteredCategoryName ?? "Search product", titleColor: Colors.orange,)
         ),
-        body: productList.isEmpty ?
-        const Center(
-          child: SubTitleTextWidget(label: "No Product"),
-        )
-        :Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              const SizedBox(
-                height: 25,
-              ),
-              TextField(
-                controller: searchTextController,
-                decoration: InputDecoration(
-                  hintText: "search something...",
-                  hintStyle: TextStyle(
-                    fontStyle: FontStyle.italic,
-                    fontWeight: FontWeight.bold,
+        body: LoadingWidget(
+          isLoading: _isLoading,
+          child: productList.isEmpty ?
+            const Center(
+              child: SubTitleTextWidget(label: "No Product"),
+            )
+            :Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  const SizedBox(
+                    height: 25,
                   ),
-                  prefixIcon: const Icon(Icons.search),
-                  suffixIcon: hasText ? GestureDetector(
-                    onTap: (){
+                  TextField(
+                    controller: searchTextController,
+                    decoration: InputDecoration(
+                      hintText: "search something...",
+                      hintStyle: TextStyle(
+                        fontStyle: FontStyle.italic,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      prefixIcon: const Icon(Icons.search),
+                      suffixIcon: hasText ? GestureDetector(
+                        onTap: (){
+                          setState(() {
+                            FocusScope.of(context).unfocus();
+                            searchTextController.clear();
+                          });
+                        },
+                        child: const Icon(Icons.clear),
+                      )
+                      : null,
+                    ),
+                    onChanged: (value) {
+
+                    },
+                    onSubmitted: (value){
                       setState(() {
-                        FocusScope.of(context).unfocus();
-                        searchTextController.clear();
+                        productListSearch = productProvider.findByProductName
+                          (searchText: searchTextController.text,
+                            searchingProductList: productList);
                       });
                     },
-                    child: const Icon(Icons.clear),
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+
+                  if(searchTextController.text.isNotEmpty && productListSearch.isEmpty)...[
+                    const Center(
+                      child: SubTitleTextWidget(label: "No Products found"),
+                    )
+                  ],
+
+                  Expanded(
+                    child: DynamicHeightGridView(
+                      mainAxisSpacing: 12,
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 12,
+                      itemCount: searchTextController.text.isNotEmpty ?
+                        productListSearch.length :
+                        productList.length,
+                      builder: (context, index){
+                        return  ProductWidget(
+                          productId: searchTextController.text.isNotEmpty ? productListSearch[index].productId
+                          :productList[index].productId);
+                      },
+                    )
                   )
-                  : null,
-                ),
-                onChanged: (value) {
-
-                },
-                onSubmitted: (value){
-                  setState(() {
-                    productListSearch = productProvider.findByProductName
-                      (searchText: searchTextController.text,
-                        searchingProductList: productList);
-                  });
-                },
+                ],
               ),
-              const SizedBox(
-                height: 20,
-              ),
-
-              if(searchTextController.text.isNotEmpty && productListSearch.isEmpty)...[
-                const Center(
-                  child: SubTitleTextWidget(label: "No Products found"),
-                )
-              ],
-
-              Expanded(
-                child: DynamicHeightGridView(
-                  mainAxisSpacing: 12,
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 12,
-                  itemCount: searchTextController.text.isNotEmpty ?
-                    productListSearch.length :
-                    productList.length,
-                  builder: (context, index){
-                    return  ProductWidget(
-                      productId: searchTextController.text.isNotEmpty ? productListSearch[index].productId
-                      :productList[index].productId);
-                  },
-                )
-              )
-            ],
+            ),
           ),
-        ),
-      ),
+        )
     );
   }
 }

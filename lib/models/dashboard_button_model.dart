@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_project/screens/admin/all_product_screen.dart';
 import 'package:flutter_project/screens/admin/all_users_screen.dart';
 import 'package:flutter_project/screens/admin/edit_upload_user_screen.dart';
+import 'package:flutter_project/screens/auth/login_screen.dart';
 import 'package:flutter_project/screens/orders_screen.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../../screens/admin/edit_upload_product_screen.dart';
@@ -67,6 +68,7 @@ class DashboardButtonModel {
               try{
                 await  FirebaseAuth.instance.signOut();
                 Fluttertoast.showToast(msg: "Sign out successful");
+                Navigator.pushNamed(context, LoginScreen.routName);
               }
               catch(error){
                 Fluttertoast.showToast(msg: "Sign out failed");

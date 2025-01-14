@@ -36,7 +36,7 @@ class _ProfileScreenState extends State<ProfileScreen> with AutomaticKeepAliveCl
       setState(() {
         _isLoading = true;
       });
-      userModel = await userProvider.fetchUserInfo();
+      userModel = await userProvider.fetchUserInfoById(user!.uid);
     }
     catch(error){
       await AppFunctions.showErrorOrWarningDialog(
@@ -160,13 +160,23 @@ class _ProfileScreenState extends State<ProfileScreen> with AutomaticKeepAliveCl
                               width: 3,
                             ),
                           ),
-                          child: (userModel != null && userModel!.userImage.isNotEmpty) ?
-                          ClipOval(
-                            child: Image.asset(
+                          child:  ClipOval(
+                            child: userModel != null && userModel!.userImage.isNotEmpty
+                                ? Image.network(
                               userModel!.userImage,
-                              fit: BoxFit.fill,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) => Icon(
+                                Icons.person,
+                                size: 60,
+                                color: Colors.grey,
+                              ),
+                            )
+                                : Icon(
+                              Icons.person,
+                              size: 60,
+                              color: Colors.grey,
                             ),
-                          ):SizedBox.shrink(),
+                          ),
                         ),
                         const SizedBox(
                           width: 10,

@@ -1,17 +1,22 @@
 import 'dart:io';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:flutter_project/constans/app_constans.dart';
 import 'package:flutter_project/constans/validator.dart';
+import 'package:flutter_project/providers/product_provider.dart';
 import 'package:flutter_project/providers/theme_provider.dart';
 import 'package:flutter_project/services/assets_manager.dart';
+import 'package:flutter_project/widgets/loading_widget.dart';
 import 'package:flutter_project/widgets/titles/subtitle_text_widget.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
 import '../../models/product_model.dart';
 import '../../services/app_functions.dart';
+import '../../services/cloudinary_service.dart';  // <-- Bu satır eklendi
 import '../../widgets/titles/title_text_widget.dart';
 
 class EditUploadProductScreen extends StatefulWidget {
@@ -24,18 +29,23 @@ class EditUploadProductScreen extends StatefulWidget {
   State<EditUploadProductScreen> createState() => _EditUploadProductScreenState();
 }
 
+bool _isLoading = false;
+
 class _EditUploadProductScreenState extends State<EditUploadProductScreen> {
+
   final _formKey = GlobalKey<FormState>();
   XFile? _pickedImage;
   late TextEditingController
-    _titleController,
-    _priceController,
-    _descriptionController,
-    _quantityController;
-  String? _categoryValue;
+  _titleController,
+      _priceController,
+      _descriptionController,
+      _quantityController;
+  late String _categoryValue;
   bool isEditing = false;
 
   String? productNetworkImage;
+
+  final CloudinaryService _cloudinaryService = CloudinaryService();  // <-- Bu satır eklendi
 
   @override
   void initState() {
@@ -43,6 +53,9 @@ class _EditUploadProductScreenState extends State<EditUploadProductScreen> {
       isEditing = true;
       productNetworkImage = widget.productModel!.productImage;
       _categoryValue = widget.productModel!.productCategory;
+    }
+    else{
+      _categoryValue = AppConstans.categoryList[0];
     }
 
     _titleController = TextEditingController(text: widget.productModel?.productTitle);
@@ -81,25 +94,76 @@ class _EditUploadProductScreenState extends State<EditUploadProductScreen> {
   }
 
   Future<void> addProduct() async {
+    final productProvider = Provider.of<ProductProvider>(context, listen: false);
     if (_pickedImage == null) {
       AppFunctions.showErrorOrWarningDialog(context: context, subtitle: "Please add image", function: () {}, isError: false);
       return;
     }
     final isValid = _formKey.currentState!.validate();
     FocusScope.of(context).unfocus();
-    if (isValid) {}
+
+    if (isValid) {
+      try {
+        setState(() {
+          _isLoading = true;
+        });
+        String? imageUrl = await _cloudinaryService.uploadImage(File(_pickedImage!.path));
+        var uuid = Uuid();
+
+        if (imageUrl != null) {
+          ProductModel newProduct = ProductModel(
+            productTitle: _titleController.text,
+            productPrice: double.parse(_priceController.text),
+            productDescription: _descriptionController.text,
+            productQuantity: double.parse(_quantityController.text),
+            productCategory: _categoryValue,
+            productImage: imageUrl,
+            productId: uuid.v4(),
+            createdAt: Timestamp.now(),
+          );
+
+          productProvider.addProduct(newProduct);
+        }
+      } catch (err) {
+        Fluttertoast.showToast(msg: "Failed to add product: ${err.toString()}");
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
+
 
   Future<void> editProduct() async {
-    final isValid = _formKey.currentState!.validate();
-    FocusScope.of(context).unfocus();
+    if (_formKey.currentState!.validate()) {
+      String? imageUrl = _pickedImage != null
+          ? await _cloudinaryService.uploadImage(File(_pickedImage!.path))
+          : productNetworkImage;
 
-    if (_pickedImage == null) {
-      AppFunctions.showErrorOrWarningDialog(context: context, subtitle: "Please add image", function: () {},isError: false  );
-      return;
+      if (imageUrl != null) {
+        ProductModel updatedProduct = ProductModel(
+          productId: widget.productModel!.productId,
+          productTitle: _titleController.text,
+          productPrice: double.parse(_priceController.text),
+          productCategory: _categoryValue,
+          productDescription: _descriptionController.text,
+          productImage: imageUrl,
+          productQuantity: double.parse(_quantityController.text),
+          createdAt: widget.productModel!.createdAt,
+        );
+
+        await FirebaseFirestore.instance
+            .collection('products')
+            .doc(updatedProduct.productId)
+            .update(updatedProduct.toMap());
+
+        Fluttertoast.showToast(msg: "Product updated successfully!",backgroundColor: Colors.green, textColor: Colors.white);
+        Navigator.of(context).pop();
+      }
     }
-    if (isValid) {}
   }
+
 
   Future<void> localImagePicker() async {
     final ImagePicker imagePicker = ImagePicker();
@@ -124,7 +188,8 @@ class _EditUploadProductScreenState extends State<EditUploadProductScreen> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final themeProvider = Provider.of<ThemeProvider>(context);
-    return GestureDetector(
+    return LoadingWidget(isLoading: _isLoading,
+      child: GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
       },
@@ -246,7 +311,7 @@ class _EditUploadProductScreenState extends State<EditUploadProductScreen> {
                   hint: const Text("Select a category"),
                   onChanged: (String? value) {
                     setState(() {
-                      _categoryValue = value;
+                      _categoryValue = value!;
                     });
                   },
                   menuMaxHeight: 200,
@@ -339,6 +404,9 @@ class _EditUploadProductScreenState extends State<EditUploadProductScreen> {
                         const SizedBox(
                           height: 16,
                         ),
+                        SizedBox(
+                          height: 20,
+                        ),
                         ElevatedButton.icon(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green,
@@ -367,7 +435,7 @@ class _EditUploadProductScreenState extends State<EditUploadProductScreen> {
             ),
           ),
         ),
-      ),
+      ),)
     );
   }
 }

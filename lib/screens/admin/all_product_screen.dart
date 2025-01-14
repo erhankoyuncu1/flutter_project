@@ -2,6 +2,8 @@ import 'package:dynamic_height_grid_view/dynamic_height_grid_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:flutter_project/widgets/admin/product/product_widget.dart';
+import 'package:flutter_project/widgets/loading_widget.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/product_model.dart';
@@ -20,9 +22,11 @@ class AllProductScreen extends StatefulWidget {
 class _AllProductScreenState extends State<AllProductScreen> {
   late TextEditingController searchTextController;
   bool hasText = false;
+  bool _isLoading = false;
 
   @override
   void initState(){
+    getAllProduct();
     super.initState();
     searchTextController = TextEditingController();
     searchTextController.addListener((){
@@ -40,14 +44,32 @@ class _AllProductScreenState extends State<AllProductScreen> {
 
   List<ProductModel> productListSearch = [];
 
+  Future<void> getAllProduct() async{
+    final productProivder = Provider.of<ProductProvider>(context, listen: false);
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+      await productProivder.fetchProducts();
+    }catch(error){
+      Fluttertoast.showToast(msg: error.toString());
+    }
+    finally{
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
 
     final productProvider = Provider.of<ProductProvider>(context);
+    List<ProductModel> productList = productProvider.getProducts;
 
-    List<ProductModel> productList = productProvider.products;
-
-    return GestureDetector(
+    return LoadingWidget(
+      isLoading: _isLoading,
+      child:  GestureDetector(
       onTap: (){
         FocusScope.of(context).unfocus();
       },
@@ -137,6 +159,7 @@ class _AllProductScreenState extends State<AllProductScreen> {
           ),
         ),
       ),
+      )
     );
   }
 }

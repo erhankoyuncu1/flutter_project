@@ -1,95 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_project/models/user_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter_project/models/user_model.dart';
 
-class UserProvider with ChangeNotifier{
+class UserProvider with ChangeNotifier {
   UserModel? userModel;
-  UserModel? get getUserModel{
+
+  UserModel? get getUserModel {
     return userModel;
   }
-  //giriş yapan kullanıcıyı getirme
-  Future<UserModel?> fetchUserInfo() async{
-    final auth = FirebaseAuth.instance;
-    User? user = auth.currentUser;
-
-    if(user == null){
-      return null;
-    }
-    String uid = user.uid;
-    try{
-      final userDoc =await FirebaseFirestore.instance.collection("users").doc(uid).get();
-
-      final userDocDict = userDoc.data() as Map<String, dynamic>?;
-      userModel = UserModel(
-        userId: userDoc.get("userId"),
-        userName: userDoc.get("userName"),
-        userImage: userDoc.get("userImage"),
-        userEmail: userDoc.get("userEmail"),
-        userPassword: userDoc.get("userPassword"),
-        createdAt: userDoc.get("createdAt"),
-        isAdmin: userDoc.get("isAdmin"),
-
-        userCart: userDocDict!.containsKey("userCart") ?   userDoc.get("userCart") :[],
-        userFavoriteList: userDocDict.containsKey("userFavoriteList") ?   userDoc.get("userFavoriteList") :[],
-        userAddressList: userDocDict.containsKey("userAddressList") ?   userDoc.get("userAddressList") :[],
-      );
-      return userModel;
-    } on FirebaseException catch(error){
-      rethrow;
-    }catch(error){
-      rethrow;
-    }
-  }
-
-  //Kullanıcı id ile kullanıcı getirme
-  Future<UserModel?> fetchUserInfoById( String uid) async{
-    try{
-      final userDoc =await FirebaseFirestore.instance.collection("users").doc(uid).get();
-
-      final userDocDict = userDoc.data() as Map<String, dynamic>?;
-      userModel = UserModel(
-        userId: userDoc.get("userId"),
-        userName: userDoc.get("userName"),
-        userImage: userDoc.get("userImage"),
-        userEmail: userDoc.get("userEmail"),
-        userPassword: userDoc.get("userPassword"),
-        createdAt: userDoc.get("createdAt"),
-        isAdmin: userDoc.get("isAdmin"),
-
-        userCart: userDocDict!.containsKey("userCart") ?   userDoc.get("userCart") :[],
-        userFavoriteList: userDocDict.containsKey("userFavoriteList") ?   userDoc.get("userFavoriteList") :[],
-        userAddressList: userDocDict.containsKey("userAddressList") ?   userDoc.get("userAddressList") :[],
-      );
-      return userModel;
-    } on FirebaseException catch(error){
-      rethrow;
-    }catch(error){
-      rethrow;
-    }
-  }
-  
-  /*Future<void> updateOldUsers() async{
-    final usersCollection = FirebaseFirestore.instance.collection('users');
-
-    final allUsers = await usersCollection.get();
-
-    for(var userDoc in allUsers.docs) {
-      if(!userDoc.data().containsKey('userAddressList')) {
-        await usersCollection.doc(userDoc.id).update({
-          "userAddressList": []
-        });
-      }
-    }
-
-    Fluttertoast.showToast(msg: "Users updating successful");
-  }*/
 
   // Tüm kullanıcıları getirme
-  Future<List<UserModel?>> fetchAllUsers() async {
+  Future<List<UserModel>> fetchAllUsers() async {
     List<UserModel> userList = [];
-
     try {
       final usersCollection =
       await FirebaseFirestore.instance.collection("users").get();
@@ -102,7 +26,7 @@ class UserProvider with ChangeNotifier{
           userImage: data['userImage'] ?? '',
           userEmail: data['userEmail'] ?? '',
           userPassword: data['userPassword'] ?? '',
-          isAdmin: data['isAdmin'] ?? '',
+          isAdmin: data['isAdmin'] ?? false,
           createdAt: data['createdAt'] ?? Timestamp.now(),
           userCart: data.containsKey("userCart") ? data['userCart'] : [],
           userFavoriteList:
@@ -112,59 +36,119 @@ class UserProvider with ChangeNotifier{
         ));
       }
     } on FirebaseException catch (error) {
-      debugPrint("Hata: ${error.message}");
+      debugPrint("Firebase error: ${error.message}");
+      Fluttertoast.showToast(
+        msg: "Failed to fetch users: ${error.message}",
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
     } catch (error) {
-      debugPrint("Hata: $error");
+      debugPrint("Error: $error");
+      Fluttertoast.showToast(
+        msg: "An error occurred while fetching users.",
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
     }
     return userList;
   }
 
-  // Kullanıcı adı ile getirme
-  Future<List<UserModel?>> findByUserName(String searchText) async {
-    List<UserModel> filteredUserList = [];
-
+  // Kullanıcı ID'ye göre kullanıcıyı getirme
+  Future<UserModel?> fetchUserInfoById(String uid) async {
     try {
-      final usersCollection =
-      await FirebaseFirestore.instance.collection("users").get();
+      final userDoc = await FirebaseFirestore.instance
+          .collection("users")
+          .doc(uid)
+          .get();
 
-      for (var doc in usersCollection.docs) {
-        final data = doc.data();
-        if (data['userName']
-            .toLowerCase()
-            .contains(searchText.toLowerCase())) {
-          filteredUserList.add(UserModel(
-            userId: data['userId'] ?? '',
-            userName: data['userName'] ?? '',
-            userImage: data['userImage'] ?? '',
-            userEmail: data['userEmail'] ?? '',
-            userPassword: data['userPassword'] ?? '',
-            isAdmin: data['isAdmin'] ?? '',
-            createdAt: data['createdAt'] ?? Timestamp.now(),
-            userCart: data.containsKey("userCart") ? data['userCart'] : [],
-            userFavoriteList:
-            data.containsKey("userFavoriteList") ? data['userFavoriteList'] : [],
-            userAddressList:
-            data.containsKey("userAddressList") ? data['userAddressList'] : [],
-          ));
-        }
-      }
+      if (!userDoc.exists) return null;
+
+      final data = userDoc.data()!;
+      userModel = UserModel(
+        userId: data['userId'] ?? '',
+        userName: data['userName'] ?? '',
+        userImage: data['userImage'] ?? '',
+        userEmail: data['userEmail'] ?? '',
+        userPassword: data['userPassword'] ?? '',
+        isAdmin: data['isAdmin'] ?? false,
+        createdAt: data['createdAt'] ?? Timestamp.now(),
+        userCart: data.containsKey("userCart") ? data['userCart'] : [],
+        userFavoriteList:
+        data.containsKey("userFavoriteList") ? data['userFavoriteList'] : [],
+        userAddressList:
+        data.containsKey("userAddressList") ? data['userAddressList'] : [],
+      );
+      return userModel;
+    } on FirebaseException catch (error) {
+      debugPrint("Firebase error: ${error.message}");
+      Fluttertoast.showToast(
+        msg: "Failed to fetch user by ID: ${error.message}",
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
     } catch (error) {
       debugPrint("Error: $error");
+      Fluttertoast.showToast(
+        msg: "An error occurred while fetching user by ID.",
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
     }
-
-    return filteredUserList;
+    return null;
   }
 
-  // kullanıcı güncelleme
+  // Yeni kullanıcı ekleme
+  Future<void> addUser(UserModel newUser) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection("users")
+          .doc(newUser.userId)
+          .set({
+        "userId": newUser.userId,
+        "userName": newUser.userName,
+        "userImage": newUser.userImage ?? "",
+        "userEmail": newUser.userEmail,
+        "userPassword": newUser.userPassword,
+        "createdAt": newUser.createdAt ?? Timestamp.now(),
+        "isAdmin": newUser.isAdmin,
+        "userCart": newUser.userCart ?? [],
+        "userFavoriteList": newUser.userFavoriteList ?? [],
+        "userAddressList": newUser.userAddressList ?? [],
+      });
+
+      Fluttertoast.showToast(
+        msg: "User added successfully!",
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+      );
+    } on FirebaseException catch (error) {
+      debugPrint("Firebase error: ${error.message}");
+      Fluttertoast.showToast(
+        msg: "Failed to add user: ${error.message}",
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+    } catch (error) {
+      debugPrint("Error: $error");
+      Fluttertoast.showToast(
+        msg: "An error occurred while adding the user.",
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+    }
+  }
+
+  // Kullanıcı güncelleme
   Future<void> updateUser(UserModel userModel) async {
     try {
-      await FirebaseFirestore.instance.collection("users").doc(userModel.userId).set({
-        "userId": userModel.userId,
+      await FirebaseFirestore.instance
+          .collection("users")
+          .doc(userModel.userId)
+          .update({
         "userName": userModel.userName,
         "userImage": userModel.userImage ?? "",
         "userEmail": userModel.userEmail,
         "userPassword": userModel.userPassword,
-        "createdAt": userModel.createdAt ?? Timestamp.now(),
         "isAdmin": userModel.isAdmin,
         "userCart": userModel.userCart ?? [],
         "userFavoriteList": userModel.userFavoriteList ?? [],
@@ -176,15 +160,8 @@ class UserProvider with ChangeNotifier{
         backgroundColor: Colors.green,
         textColor: Colors.white,
       );
-    } on FirebaseException catch (error) {
-      debugPrint("Firebase error: ${error.message}");
-      Fluttertoast.showToast(
-        msg: "Failed to update user: ${error.message}",
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-      );
     } catch (error) {
-      debugPrint("Error: $error");
+      debugPrint("Error updating user: $error");
       Fluttertoast.showToast(
         msg: "An error occurred while updating the user.",
         backgroundColor: Colors.red,
@@ -193,4 +170,31 @@ class UserProvider with ChangeNotifier{
     }
   }
 
+  // Kullanıcı giriş
+  Future<UserModel?> login(String email, String password) async {
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password);
+      User? user = userCredential.user;
+
+      if (user != null) {
+        return await fetchUserInfoById(user.uid);
+      }
+    } on FirebaseAuthException catch (error) {
+      debugPrint("FirebaseAuth error: ${error.message}");
+      Fluttertoast.showToast(
+        msg: "Login failed: ${error.message}",
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+    } catch (error) {
+      debugPrint("Error: $error");
+      Fluttertoast.showToast(
+        msg: "An error occurred during login.",
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+    }
+    return null;
+  }
 }

@@ -7,9 +7,7 @@ import 'package:flutter_project/widgets/admin/user/user_widget.dart';
 import 'package:flutter_project/widgets/loading_widget.dart';
 import 'package:flutter_project/widgets/titles/subtitle_text_widget.dart';
 import 'package:provider/provider.dart';
-
 import '../../services/app_functions.dart';
-import '../../services/assets_manager.dart';
 import '../../widgets/titles/app_name_text_widget.dart';
 
 class AllUsersScreen extends StatefulWidget {
@@ -23,172 +21,126 @@ class AllUsersScreen extends StatefulWidget {
 class _AllUsersScreenState extends State<AllUsersScreen> {
   late TextEditingController searchTextController;
   bool hasText = false;
-
-  @override
-  void dispose(){
-    searchTextController.dispose();
-    super.dispose();
-  }
-
-  List<UserModel> userListSearch = [];
-  List<UserModel> userList = [];
+  List<UserModel> allUsers = [];
+  List<UserModel> filteredUsers = [];
   bool _isLoading = false;
 
-  Future<void> getAllUsers() async{
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-    try {
-      setState(() {
-        _isLoading = true;
-      });
-      userList = (await userProvider.fetchAllUsers()).cast<UserModel>();
-    }
-    catch(error) {
-      await AppFunctions.showErrorOrWarningDialog(
-        context: context,
-        subtitle: error.toString(),
-        function: (){},
-      );
-    }
-    finally{
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
-
-  Future<void> usersBySearchText(String searchText) async{
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-    try{
-      setState(() {
-        _isLoading = true;
-      });
-      userListSearch = (await userProvider.findByUserName(searchText)).cast<UserModel>();
-    }
-    catch(error) {
-      await AppFunctions.showErrorOrWarningDialog(
-        context: context,
-        subtitle: error.toString(),
-        function: (){},
-      );
-    }
-    finally{
-      setState(() {
-        _isLoading = false;
-      });
-    }
-
-  }
-
   @override
-  void initState(){
-    getAllUsers();
+  void initState() {
+    super.initState();
     searchTextController = TextEditingController();
-    searchTextController.addListener((){
+    searchTextController.addListener(() {
       setState(() {
         hasText = searchTextController.text.isNotEmpty;
       });
     });
-    super.initState();
+    fetchAllUsers();
+  }
+
+  @override
+  void dispose() {
+    searchTextController.dispose();
+    super.dispose();
+  }
+
+  Future<void> fetchAllUsers() async {
+    setState(() => _isLoading = true);
+    try {
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      allUsers = await userProvider.fetchAllUsers();
+      filteredUsers = allUsers;
+    } catch (error) {
+      await AppFunctions.showErrorOrWarningDialog(
+        context: context,
+        subtitle: "Failed to fetch users: ${error.toString()}",
+        function: () {},
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  void filterUsers(String searchText) {
+    setState(() {
+      filteredUsers = allUsers.where((user) {
+        return user.userName.toLowerCase().contains(searchText.toLowerCase());
+      }).toList();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final userProvider = Provider.of<UserProvider>(context);
     return GestureDetector(
-      onTap: (){
-        FocusScope.of(context).unfocus();
-      },
+      onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-            backgroundColor: Colors.transparent,
-            centerTitle: true,
-            elevation: 0,
-            leading: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: IconButton(
-                icon: const Icon(IconlyLight.arrowLeft2,color: Colors.purple),
-                onPressed: () {
-                  if (Navigator.canPop(context)) {
-                    Navigator.pop(context);
-                  }
-                }
-              )
-            ),
-            title: AppNameText(titleText:"All Users", titleColor: Colors.purple,)
+          backgroundColor: Colors.transparent,
+          centerTitle: true,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(IconlyLight.arrowLeft2, color: Colors.purple),
+            onPressed: () {
+              if (Navigator.canPop(context)) Navigator.pop(context);
+            },
+          ),
+          title: const AppNameText(
+            titleText: "All Users",
+            titleColor: Colors.purple,
+          ),
         ),
-        body:LoadingWidget(
+        body: LoadingWidget(
           isLoading: _isLoading,
-          child:userList.isEmpty ?
-          const Center(
-            child: SubTitleTextWidget(label: "No User"),
+          child: filteredUsers.isEmpty
+              ? const Center(
+            child: SubTitleTextWidget(label: "No Users Found"),
           )
-          :Padding(
-            padding: EdgeInsets.all(8.0),
+              : Padding(
+            padding: const EdgeInsets.all(8.0),
             child: Column(
               children: [
-                const SizedBox(
-                  height: 25,
-                ),
+                const SizedBox(height: 25),
                 TextField(
                   controller: searchTextController,
                   decoration: InputDecoration(
-                    hintText: "search by user name...",
-                    hintStyle: TextStyle(
+                    hintText: "Search by user name...",
+                    hintStyle: const TextStyle(
                       fontStyle: FontStyle.italic,
                       fontWeight: FontWeight.bold,
                     ),
                     prefixIcon: const Icon(Icons.search),
-                    suffixIcon: hasText ? GestureDetector(
-                      onTap: (){
+                    suffixIcon: hasText
+                        ? GestureDetector(
+                      onTap: () {
                         setState(() {
-                          FocusScope.of(context).unfocus();
                           searchTextController.clear();
+                          filteredUsers = allUsers;
                         });
                       },
                       child: const Icon(Icons.clear),
                     )
                         : null,
                   ),
-                  onSubmitted: (value) async {
-                    setState(() {
-                      _isLoading = true;
-                    });
-                    await usersBySearchText(searchTextController.text);
-                    setState(() {
-                      _isLoading = false;
-                    });
-                  },
+                  onChanged: filterUsers,
                 ),
-                const SizedBox(
-                  height: 20,
-                ),
-                if(searchTextController.text.isNotEmpty && userListSearch.isEmpty)...[
-                  const Center(
-                    child: SubTitleTextWidget(label: "No user found"),
-                  )
-                ],
+                const SizedBox(height: 20),
                 Expanded(
-                    child: DynamicHeightGridView(
-                      mainAxisSpacing: 12,
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 12,
-                      itemCount: searchTextController.text.isNotEmpty ?
-                      userListSearch.length :
-                      userList.length,
-                      builder: (context, index){
-                        return  AdminUserWidget(
-                            userId: searchTextController.text.isNotEmpty
-                            ? userListSearch[index].userId
-                                : userList[index].userId,
-                        );
-                      },
-                    )
+                  child: DynamicHeightGridView(
+                    mainAxisSpacing: 12,
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 12,
+                    itemCount: filteredUsers.length,
+                    builder: (context, index) {
+                      return AdminUserWidget(
+                        userId: filteredUsers[index].userId,
+                      );
+                    },
+                  ),
                 ),
               ],
             ),
-          )
+          ),
+        ),
       ),
-      )
     );
   }
 }

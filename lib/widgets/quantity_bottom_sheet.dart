@@ -4,6 +4,7 @@ import 'package:flutter_project/widgets/titles/subtitle_text_widget.dart';
 import 'package:provider/provider.dart';
 
 class QuantityBottomSheet extends StatelessWidget {
+  final int availableQuantity;
   final int quantity;
   final Function(int) onQuantityChanged;
 
@@ -11,6 +12,7 @@ class QuantityBottomSheet extends StatelessWidget {
     super.key,
     required this.quantity,
     required this.onQuantityChanged,
+    required this.availableQuantity
   });
 
   @override
@@ -34,7 +36,7 @@ class QuantityBottomSheet extends StatelessWidget {
         ),
         Expanded(
           child: ListView.builder(
-            itemCount: 25,
+            itemCount: availableQuantity,
             itemBuilder: (context, index) {
               final currentQuantity = index + 1;
               return InkWell(

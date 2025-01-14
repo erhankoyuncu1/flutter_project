@@ -29,10 +29,10 @@ class FavoriteProductsScreen extends StatelessWidget {
         },
             icon: const Icon(IconlyLight.arrowLeft2)),
         title: AppNameText(
-          titleText: "Favorite Products (${favoriteListProvider.totalItems})",
+          titleText: "Favorite Products (${favoriteListProvider.totalItemsCount})",
         ),
       ),
-      body: favoriteListProvider.getProducts.isEmpty ? Visibility(
+      body: favoriteListProvider.favoriteList.isEmpty ? Visibility(
         child: EmptyPageWidget(
           imagePath: AssetsManager.noFavoriteProduct,
           subTitle: "Favorite Products is Empty",
@@ -44,11 +44,11 @@ class FavoriteProductsScreen extends StatelessWidget {
       :DynamicHeightGridView(
         mainAxisSpacing: 15,
         crossAxisCount: 1,
-        itemCount: favoriteListProvider.getProducts.length,
+        itemCount: favoriteListProvider.totalItemsCount,
         builder: (context, index){
           return Padding(
             padding: const EdgeInsets.all(8.0),
-            child: FavoriteProductWidget(productId: favoriteListProvider.getProducts.values.toList()[index].productId),
+            child: FavoriteProductWidget(productId: favoriteListProvider.favoriteList[index]),
           );
         },
       ),

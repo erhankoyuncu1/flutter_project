@@ -107,9 +107,7 @@ class _LoginScreenState extends State<LoginScreen> {
         textColor: Colors.white,
       );
     } on FirebaseAuthException catch (e) {
-      log('Error code: ${e.code}');
-      log('Error message: ${e.message}');
-      String errorMessage = "Login failed. Please try later...";
+      String errorMessage = "Login failed.";
       if (e.code == 'user-not-found') {
         errorMessage = "No user found for that email.";
       } else if (e.code == 'wrong-password') {

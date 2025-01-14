@@ -97,6 +97,7 @@ class CartWidget extends StatelessWidget {
                                 context: context,
                                 builder: (context) {
                                   return QuantityBottomSheet(
+                                    availableQuantity: cartItem.product.productQuantity.toInt(),
                                     quantity: cartItem.quantity,
                                     onQuantityChanged: (newQuantity) {
                                       cartProvider.updateQuantity(

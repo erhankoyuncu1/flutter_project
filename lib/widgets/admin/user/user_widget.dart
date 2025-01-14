@@ -46,8 +46,8 @@ class _AdminUserWidgetState extends State<AdminUserWidget> {
 
   @override
   void initState() {
-    super.initState();
     fetchUser();
+    super.initState();
   }
 
   @override
@@ -61,7 +61,7 @@ class _AdminUserWidgetState extends State<AdminUserWidget> {
     }
 
     if (user == null) {
-      return const SizedBox.shrink(); // Kullanıcı verisi yoksa boş göster
+      return const SizedBox.shrink();
     }
 
     return Padding(
@@ -89,7 +89,7 @@ class _AdminUserWidgetState extends State<AdminUserWidget> {
                     height: size.height * 0.2,
                     width: size.width * 0.2,
                   )
-                      : const Icon(Icons.person, size: 60), // Varsayılan simge
+                      : const Icon(Icons.person, size: 60),
                 ),
                 const SizedBox(width: 10),
                 SubTitleTextWidget(label: user!.userName),

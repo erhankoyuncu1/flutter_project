@@ -1,11 +1,15 @@
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dotted_border/dotted_border.dart';
+import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:flutter_project/constans/validator.dart';
 import 'package:flutter_project/providers/theme_provider.dart';
 import 'package:flutter_project/providers/user_provider.dart';
 import 'package:flutter_project/services/assets_manager.dart';
+import 'package:flutter_project/services/cloudinary_service.dart';
 import 'package:flutter_project/widgets/loading_widget.dart';
 import 'package:flutter_project/widgets/titles/subtitle_text_widget.dart';
 import 'package:image_picker/image_picker.dart';
@@ -38,24 +42,16 @@ class _EditUploadUserScreenState extends State<EditUploadUserScreen> {
   @override
   void initState() {
     super.initState();
-    if(widget.userModel != null) {
+    if (widget.userModel != null) {
       isEditing = true;
-      setState(() {
-        _isAdmin.value = widget.userModel!.isAdmin;
-      });
+      _isAdmin.value = widget.userModel!.isAdmin;
     }
 
     _userNameController =
         TextEditingController(text: widget.userModel?.userName ?? '');
     _userEmailController =
         TextEditingController(text: widget.userModel?.userEmail ?? '');
-    _userPasswordController =
-        TextEditingController(text: widget.userModel?.userPassword ?? '');
-
-    if (widget.userModel != null) {
-      _userImage = XFile(widget.userModel!.userImage ?? '');
-      _isAdmin.value = widget.userModel!.isAdmin; // Admin değerini başlatıyoruz
-    }
+    _userPasswordController = TextEditingController();
   }
 
   @override
@@ -65,15 +61,6 @@ class _EditUploadUserScreenState extends State<EditUploadUserScreen> {
     _userPasswordController.dispose();
     _isAdmin.dispose();
     super.dispose();
-  }
-
-  void clearForm() {
-    _userNameController.clear();
-    _userEmailController.clear();
-    _userPasswordController.clear();
-    setState(() {
-      _userImage = null;
-    });
   }
 
   Future<void> pickImage() async {
@@ -113,21 +100,61 @@ class _EditUploadUserScreenState extends State<EditUploadUserScreen> {
 
     final userProvider = Provider.of<UserProvider>(context, listen: false);
 
-    final userModel = UserModel(
-      userId: widget.userModel?.userId ?? DateTime.now().toIso8601String(),
-      userName: _userNameController.text.trim(),
-      userEmail: _userEmailController.text.trim(),
-      userPassword: _userPasswordController.text.trim(),
-      userImage: _userImage!.path ?? "",
-      createdAt: widget.userModel!.createdAt,
-      isAdmin: _isAdmin.value, // Admin değeri buraya yansıtılıyor
-      userCart: widget.userModel?.userCart ?? [],
-      userFavoriteList: widget.userModel?.userFavoriteList ?? [],
-      userAddressList: widget.userModel?.userAddressList ?? [],
-    );
+    String? uploadedImageUrl;
+    if (_userImage != null) {
+      try {
+        uploadedImageUrl = await CloudinaryService().uploadImage(File(_userImage!.path));
+      } catch (e) {
+        AppFunctions.showErrorOrWarningDialog(
+          context: context,
+          subtitle: "Image upload failed. Please try again.",
+          function: () {},
+          isError: true,
+        );
+        setState(() => isLoading = false);
+        return;
+      }
+    }
 
     try {
-      await userProvider.updateUser(userModel);
+      if (isEditing) {
+        final userModel = UserModel(
+          userId: widget.userModel!.userId,
+          userName: _userNameController.text.trim(),
+          userEmail: _userEmailController.text.trim(),
+          userPassword: widget.userModel!.userPassword,
+          userImage: uploadedImageUrl ?? widget.userModel!.userImage ?? "",
+          createdAt: widget.userModel!.createdAt,
+          isAdmin: _isAdmin.value,
+          userCart: widget.userModel?.userCart ?? [],
+          userFavoriteList: widget.userModel?.userFavoriteList ?? [],
+          userAddressList: widget.userModel?.userAddressList ?? [],
+        );
+        await userProvider.updateUser(userModel);
+      } else {
+        UserCredential userCredential = await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(
+          email: _userEmailController.text.trim(),
+          password: _userPasswordController.text.trim(),
+        );
+        final userId = userCredential.user!.uid;
+
+        final newUser = UserModel(
+          userId: userId,
+          userName: _userNameController.text.trim(),
+          userEmail: _userEmailController.text.trim(),
+          userPassword: widget.userModel!.userPassword,
+          userImage: uploadedImageUrl ?? "",
+          createdAt: Timestamp.now(),
+          isAdmin: _isAdmin.value,
+          userCart: [],
+          userFavoriteList: [],
+          userAddressList: [],
+        );
+        await userProvider.addUser(newUser);
+      }
+
+      Navigator.pop(context);
     } catch (error) {
       AppFunctions.showErrorOrWarningDialog(
         context: context,
@@ -177,13 +204,13 @@ class _EditUploadUserScreenState extends State<EditUploadUserScreen> {
         ),
         body: LoadingWidget(
           isLoading: isLoading,
-          loadingText: "Adding user...",
+          loadingText: "Saving user...",
           child: SafeArea(
             child: SingleChildScrollView(
               child: Column(
                 children: [
                   const SizedBox(height: 50),
-                  if (_userImage == null)
+                  if (_userImage == null && widget.userModel?.userImage == null)
                     DottedBorder(
                       borderType: BorderType.RRect,
                       radius: const Radius.circular(12),
@@ -203,15 +230,15 @@ class _EditUploadUserScreenState extends State<EditUploadUserScreen> {
                   else
                     Column(
                       children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Image.file(
-                            File(_userImage!.path),
-                            width: size.width * 0.6,
-                            height: size.width * 0.6,
-                            fit: BoxFit.cover,
+                        if (_userImage != null || widget.userModel?.userImage != null)
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: FancyShimmerImage(
+                              imageUrl: _userImage?.path ?? widget.userModel!.userImage!,
+                              height: size.height * 0.2,
+                              width: size.width * 0.2,
+                            ),
                           ),
-                        ),
                         TextButton(
                           onPressed: pickImage,
                           child: const SubTitleTextWidget(
@@ -241,20 +268,23 @@ class _EditUploadUserScreenState extends State<EditUploadUserScreen> {
                             decoration: const InputDecoration(hintText: "Email"),
                             validator: (value) =>
                                 AppValidators.emailValidator(value ?? ''),
+                            readOnly: isEditing,
                           ),
                           const SizedBox(height: 16),
-                          TextFormField(
-                            controller: _userPasswordController,
-                            obscureText: true,
-                            decoration: const InputDecoration(hintText: "Password"),
-                            validator: (value) =>
-                                AppValidators.passwordValidator(value ?? ''),
-                          ),
+                          if (!isEditing)
+                            TextFormField(
+                              controller: _userPasswordController,
+                              obscureText: true,
+                              decoration: const InputDecoration(hintText: "Password"),
+                              validator: (value) => AppValidators.passwordValidator(value ?? ''),
+                            ),
                           const SizedBox(height: 16),
-                          // Switch for isAdmin
                           Row(
                             children: [
-                              const SubTitleTextWidget(label: "Admin : ",fontSize: 18,),
+                              const SubTitleTextWidget(
+                                label: "Admin : ",
+                                fontSize: 18,
+                              ),
                               ValueListenableBuilder<bool>(
                                 valueListenable: _isAdmin,
                                 builder: (context, value, child) {

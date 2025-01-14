@@ -8,6 +8,7 @@ import 'package:flutter_project/widgets/titles/subtitle_text_widget.dart';
 import 'package:flutter_project/widgets/titles/title_text_widget.dart';
 import 'package:provider/provider.dart';
 
+import '../../models/product_model.dart';
 import '../../providers/product_provider.dart';
 import '../../providers/theme_provider.dart';
 
@@ -29,7 +30,19 @@ class _ProductDetailsState extends State<ProductDetailsWidget> {
     final favoriteProductProvider = Provider.of<FavoriteListProvider>(context);
 
     String? productId = ModalRoute.of(context)!.settings.arguments as String?;
-    final product = productProvider.findByProductId(productId!);
+
+    return FutureBuilder<ProductModel?>(
+        future: productProvider.fetchProductByProductId(productId!),
+    builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+    return CircularProgressIndicator();
+    } else if (snapshot.hasError) {
+    return Center(child: Text('An error occurred!'));
+    } else if (!snapshot.hasData) {
+    return Center(child: Text('No product found'));
+    } else {
+    final product = snapshot.data!;
+
     final bool  isAdded = cartProvider.isProductInCart(product!.productId);
     return Scaffold(
       appBar: AppBar(
@@ -112,15 +125,15 @@ class _ProductDetailsState extends State<ProductDetailsWidget> {
                                 backgroundColor: Colors.red,
                                 iconColor: Colors.white
                               ),
-                              icon: favoriteProductProvider.isProductInFavorites(product.productId) ? Icon(IconlyBold.heart) : Icon(IconlyLight.heart),
+                              icon: favoriteProductProvider.isProductFavorite(product.productId) ? Icon(IconlyBold.heart) : Icon(IconlyLight.heart),
                               label:
-                                Text(favoriteProductProvider.isProductInFavorites(product.productId) ? "Favorite" : "Add to favorites",
+                                Text(favoriteProductProvider.isProductFavorite(product.productId) ? "Favorite" : "Add to favorites",
                                   style: TextStyle(
                                   color: Colors.white
                                 ),
                               ),
                               onPressed: (){
-                                favoriteProductProvider.addOrRemoveProduct(product.productId);
+                                favoriteProductProvider.toggleFavorite(productId: product.productId);
                               },
                             ),
                           )
@@ -186,4 +199,4 @@ class _ProductDetailsState extends State<ProductDetailsWidget> {
       ),
     );
   }
-}
+});}}

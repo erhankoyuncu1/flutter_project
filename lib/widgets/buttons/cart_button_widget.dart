@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_project/models/product_model.dart';
 import 'package:flutter_project/providers/cart_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -29,7 +30,7 @@ class _CartButtonWidgetState extends State<CartButtonWidget> {
   Widget build(BuildContext context) {
     final productProvider = Provider.of<ProductProvider>(context);
     final cartProvider = Provider.of<CartProvider>(context);
-    final product = productProvider.findByProductId(widget.productId);
+    final product = productProvider.fetchProductByProductId(widget.productId);
 
     return Container(
         decoration: BoxDecoration(
@@ -47,7 +48,7 @@ class _CartButtonWidgetState extends State<CartButtonWidget> {
               Icon(Icons.done,color: widget.iconColor,size: widget.size,):
               Icon(Icons.shopping_cart_outlined,color: widget.iconColor,size: widget.size,),
               onPressed: (){
-                cartProvider.addItem(product!,1);
+                cartProvider.addItem(product! as ProductModel,1);
               },),
           ],
         )

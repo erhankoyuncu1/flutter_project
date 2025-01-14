@@ -76,7 +76,7 @@ class MyApp extends StatelessWidget {
           AllProductScreen.routName : (context) => const AllProductScreen(),
           EditUploadProductScreen.routName : (context) => const EditUploadProductScreen(),
           AllUsersScreen.routName : (context) => const AllUsersScreen(),
-          EditUploadUserScreen.routName : (context) => const EditUploadUserScreen(),
+          EditUploadUserScreen.routName : (context) =>  EditUploadUserScreen(),
         },
       );
 
