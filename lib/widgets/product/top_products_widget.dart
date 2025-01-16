@@ -76,7 +76,7 @@ class TopProductsWidget extends StatelessWidget {
                           ),
                           IconButton(
                             onPressed: (){
-                              cartProvider.addItem(productModel, 1);
+                              cartProvider.addItem(productModel.productId, 1);
                             },
                             icon:cartProvider.isProductInCart(productModel.productId)
                               ? Icon(Icons.check)

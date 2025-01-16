@@ -65,11 +65,11 @@ class _HeartButtonWidgetState extends State<HeartButtonWidget> {
             style: IconButton.styleFrom(
               elevation: 10,
             ),
-            icon: favoriteListProvider.isProductFavorite(product!.productId) ?
+            icon: favoriteListProvider.isProductInFavorites(product!.productId) ?
             Icon(IconlyBold.heart,color: widget.iconColor,size: widget.size,):
             Icon(IconlyLight.heart,color: widget.iconColor,size: widget.size,),
             onPressed: () async {
-              await favoriteListProvider.toggleFavorite(productId: product.productId);
+              await favoriteListProvider.addOrRemoveProduct(product.productId);
             },),
         ],
       )

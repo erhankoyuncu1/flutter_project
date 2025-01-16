@@ -37,6 +37,7 @@ class _ProfileScreenState extends State<ProfileScreen> with AutomaticKeepAliveCl
         _isLoading = true;
       });
       userModel = await userProvider.fetchUserInfoById(user!.uid);
+      Fluttertoast.showToast(msg: user!.uid);
     }
     catch(error){
       await AppFunctions.showErrorOrWarningDialog(

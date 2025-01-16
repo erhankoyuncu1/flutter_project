@@ -1,107 +1,130 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import '../services/app_functions.dart';
+
+import '../models/favorite_list_model.dart';
 
 class FavoriteListProvider with ChangeNotifier {
-  List<String> _favoriteList = [];
-  User? user = FirebaseAuth.instance.currentUser;
+  final Map<String, FavoritelistModel> _favoriteListItems = {};
 
-  late String? _currentUserId = user!.uid;
+  Map<String, FavoritelistModel> get getProducts => _favoriteListItems;
 
-  List<String> get favoriteList => _favoriteList;
-  int get totalItemsCount => _favoriteList.length;
+  String? _userId = FirebaseAuth.instance.currentUser?.uid;
 
-  /// Kullanıcının favori listesini Firestore'dan yükler
-  Future<void> loadFavoriteList({
-    required String userId,
-    required BuildContext context,
-  }) async {
-    if (userId.isEmpty) {
-      AppFunctions.showErrorOrWarningDialog(
-        context: context,
-        subtitle: "User ID is empty. Cannot load favorite list.",
-        function: (){}
+  int get totalItems {
+    return _favoriteListItems.length;
+  }
+
+  void isUserLoggedIn() {
+    if (_userId == null) {
+      Fluttertoast.showToast(
+          msg: "Please login first.!",
+          backgroundColor: Colors.red,
+          textColor: Colors.white
       );
-      return;
+      return; // Eğer kullanıcı giriş yapmamışsa işlemi durduruyoruz
     }
+  }
+
+  Future<void> addOrRemoveProduct(String productId) async {
+    // Giriş yapılmamışsa işlem yapma
+    isUserLoggedIn();
+    if (_userId == null) return;  // Giriş yapılmamışsa işlemi burada durduruyoruz
 
     try {
-      final userDoc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
-      if (userDoc.exists) {
-        final userData = userDoc.data();
-        if (userData != null) {
-          _favoriteList = List<String>.from(userData['userFavoriteList'] ?? []);
-        }
-      }
-    } catch (e) {
-      AppFunctions.showErrorOrWarningDialog(
-        context: context,
-        subtitle: "Error loading favorite list: $e",
-        function: (){}
-      );
-    }
+      final DocumentReference userDoc = FirebaseFirestore.instance.collection('users').doc(_userId);
 
+      final userSnapshot = await userDoc.get();
+      if (!userSnapshot.exists) {
+        throw Exception('User not found');
+      }
+
+      List<dynamic> favoriteList = userSnapshot['userFavoriteList'] ?? [];
+
+      if (favoriteList.contains(productId)) {
+        // Remove product from Firestore
+        favoriteList.remove(productId);
+        _favoriteListItems.remove(productId);
+      } else {
+        // Add product to Firestore
+        favoriteList.add(productId);
+        _favoriteListItems.putIfAbsent(
+          productId,
+              () => FavoritelistModel(productId: productId),
+        );
+      }
+
+      await userDoc.update({'userFavoriteList': favoriteList});
+      notifyListeners();
+    } catch (error) {
+      debugPrint('Error in addOrRemoveProduct: $error');
+    }
+  }
+
+  Future<void> removeItem(String productId) async {
+    // Giriş yapılmamışsa işlem yapma
+    isUserLoggedIn();
+    if (_userId == null) return;  // Giriş yapılmamışsa işlemi burada durduruyoruz
+
+    try {
+      final DocumentReference userDoc = FirebaseFirestore.instance.collection('users').doc(_userId);
+
+      final userSnapshot = await userDoc.get();
+      if (!userSnapshot.exists) {
+        throw Exception('User not found');
+      }
+
+      List<dynamic> favoriteList = userSnapshot['userFavoriteList'] ?? [];
+
+      if (favoriteList.contains(productId)) {
+        favoriteList.remove(productId);
+        _favoriteListItems.remove(productId);
+
+        await userDoc.update({'userFavoriteList': favoriteList});
+        notifyListeners();
+      }
+    } catch (error) {
+      debugPrint('Error in removeItem: $error');
+    }
+  }
+
+  bool isProductInFavorites(String productId) {
+    return _favoriteListItems.containsKey(productId);
+  }
+
+  void clearFavoriteList() {
+    _favoriteListItems.clear();
     notifyListeners();
   }
 
-  /// Bir ürünü favori listesine ekler veya çıkarır
-  Future<void> toggleFavorite({
-    required String productId,
-  }) async {
-    if (_currentUserId!.isEmpty) {
-      Fluttertoast.showToast(msg: "Current user ID is empty. Cannot toggle favorite.");
-      return;
-    }
+  Future<void> fetchAllFavoriteProducts() async {
+    // Giriş yapılmamışsa işlem yapma
+    isUserLoggedIn();
+    if (_userId == null) return;  // Giriş yapılmamışsa işlemi burada durduruyoruz
 
     try {
-      if (_favoriteList.contains(productId)) {
-        _favoriteList.remove(productId);
-      } else {
-        _favoriteList.add(productId);
+      final DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(_userId)
+          .get();
+
+      if (userDoc.exists) {
+        final List<dynamic> favoriteProductIds = userDoc['userFavoriteList'] ?? [];
+
+        final Map<String, FavoritelistModel> loadedFavorites = {};
+
+        for (var productId in favoriteProductIds) {
+          loadedFavorites[productId] = FavoritelistModel(productId: productId);
+        }
+
+        _favoriteListItems.clear();
+        _favoriteListItems.addAll(loadedFavorites);
+        notifyListeners();
       }
-
-      await FirebaseFirestore.instance.collection('users').doc(_currentUserId).update({
-        'userFavoriteList': _favoriteList,
-      });
-
-      notifyListeners();
-    } catch (e) {
-      Fluttertoast.showToast(msg: "Error toggling favorite: $e");
-    }
-  }
-
-  /// Favori listesinde ürünün olup olmadığını kontrol eder
-  bool isProductFavorite(String productId) {
-    return _favoriteList.contains(productId);
-  }
-
-  /// Favori listesini temizler
-  Future<void> clearFavoriteList(BuildContext context) async {
-    if (_currentUserId!.isEmpty) {
-      AppFunctions.showErrorOrWarningDialog(
-        context: context,
-        subtitle: "Current user ID is empty. Cannot clear favorite list.",
-        function: (){}
-      );
-      return;
-    }
-
-    try {
-      _favoriteList.clear();
-
-      await FirebaseFirestore.instance.collection('users').doc(_currentUserId).update({
-        'userFavoriteList': _favoriteList,
-      });
-
-      notifyListeners();
-    } catch (e) {
-      AppFunctions.showErrorOrWarningDialog(
-        context: context,
-        subtitle: "Error clearing favorite list: $e",
-        function: (){}
-      );
+    } catch (error) {
+      debugPrint('Error fetching favorite products: $error');
     }
   }
 }

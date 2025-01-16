@@ -28,11 +28,11 @@ class UserProvider with ChangeNotifier {
           userPassword: data['userPassword'] ?? '',
           isAdmin: data['isAdmin'] ?? false,
           createdAt: data['createdAt'] ?? Timestamp.now(),
-          userCart: data.containsKey("userCart") ? data['userCart'] : [],
+          userCart: List<Map<String, dynamic>>.from(data['userCart'] ?? []),
           userFavoriteList:
-          data.containsKey("userFavoriteList") ? data['userFavoriteList'] : [],
+          List<String>.from(data['userFavoriteList'] ?? []),
           userAddressList:
-          data.containsKey("userAddressList") ? data['userAddressList'] : [],
+          List<String>.from(data['userAddressList'] ?? []),
         ));
       }
     } on FirebaseException catch (error) {
@@ -72,11 +72,11 @@ class UserProvider with ChangeNotifier {
         userPassword: data['userPassword'] ?? '',
         isAdmin: data['isAdmin'] ?? false,
         createdAt: data['createdAt'] ?? Timestamp.now(),
-        userCart: data.containsKey("userCart") ? data['userCart'] : [],
+        userCart: List<Map<String, dynamic>>.from(data['userCart'] ?? []),
         userFavoriteList:
-        data.containsKey("userFavoriteList") ? data['userFavoriteList'] : [],
+        List<String>.from(data['userFavoriteList'] ?? []),
         userAddressList:
-        data.containsKey("userAddressList") ? data['userAddressList'] : [],
+        List<String>.from(data['userAddressList'] ?? []),
       );
       return userModel;
     } on FirebaseException catch (error) {
@@ -103,18 +103,7 @@ class UserProvider with ChangeNotifier {
       await FirebaseFirestore.instance
           .collection("users")
           .doc(newUser.userId)
-          .set({
-        "userId": newUser.userId,
-        "userName": newUser.userName,
-        "userImage": newUser.userImage ?? "",
-        "userEmail": newUser.userEmail,
-        "userPassword": newUser.userPassword,
-        "createdAt": newUser.createdAt ?? Timestamp.now(),
-        "isAdmin": newUser.isAdmin,
-        "userCart": newUser.userCart ?? [],
-        "userFavoriteList": newUser.userFavoriteList ?? [],
-        "userAddressList": newUser.userAddressList ?? [],
-      });
+          .set(newUser.toMap());
 
       Fluttertoast.showToast(
         msg: "User added successfully!",
@@ -144,16 +133,7 @@ class UserProvider with ChangeNotifier {
       await FirebaseFirestore.instance
           .collection("users")
           .doc(userModel.userId)
-          .update({
-        "userName": userModel.userName,
-        "userImage": userModel.userImage ?? "",
-        "userEmail": userModel.userEmail,
-        "userPassword": userModel.userPassword,
-        "isAdmin": userModel.isAdmin,
-        "userCart": userModel.userCart ?? [],
-        "userFavoriteList": userModel.userFavoriteList ?? [],
-        "userAddressList": userModel.userAddressList ?? [],
-      });
+          .update(userModel.toMap());
 
       Fluttertoast.showToast(
         msg: "User updated successfully!",

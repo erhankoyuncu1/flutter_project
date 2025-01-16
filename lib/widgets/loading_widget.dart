@@ -4,8 +4,8 @@ import 'package:flutter_project/widgets/titles/subtitle_text_widget.dart';
 class LoadingWidget extends StatelessWidget {
   const LoadingWidget({
     super.key,
-    required this.child,
     required this.isLoading,
+    required this.child,
     this.loadingText = "Loading..."
   });
 

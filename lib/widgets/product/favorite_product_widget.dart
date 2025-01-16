@@ -76,13 +76,14 @@ class FavoriteProductWidget extends StatelessWidget {
                                       fontSize: 14,
                                     ),
                                   ),
+                                  buttonVisibility?
                                   IconButton(
                                       icon: Icon(Icons.close_sharp,size: 15,),
                                       onPressed:() {
                                         viewedListProvider.removeItem(
                                             product.productId);
                                       }
-                                  ),
+                                  ):SizedBox.shrink(),
                                 ],
                               ),
                               Row(

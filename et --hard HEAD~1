@@ -1,0 +1,16 @@
+[33mfa53731[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mcart_provider[m[33m, [m[1;31morigin/login_logout[m[33m, [m[1;32mlogin_logout[m[33m)[m login and logout procedures have been partially completed.
+[33mecf33fa[m[33m ([m[1;31morigin/firebase_connection[m[33m, [m[1;32mfirebase_connection[m[33m)[m Firebase connection done
+[33mc0ee22a[m[33m ([m[1;31morigin/admin_dashboard[m[33m, [m[1;32madmin_dashboard[m[33m)[m edit upload screen updated
+[33me15d8d7[m google-service.json deleted and  edit upload screen uptaded
+[33md3de010[m admin dashboard edited
+[33m8a6cd27[m admin dashboard added
+[33m83dced3[m admin dashboard added
+[33m95ea48b[m[33m ([m[1;31morigin/product_model[m[33m, [m[1;32mproduct_model[m[33m)[m product, cart, favorite list, viewed list models,provider added
+[33mdfd9ca3[m[33m ([m[1;31morigin/services[m[33m, [m[1;32mservices[m[33m)[m lastest ui designings
+[33m217b8ec[m cart screen design deficiencies completed
+[33mf15d6b7[m cart screen added
+[33m513a8c4[m Added assets and updated .gitignore file
+[33m602cf7b[m Cart Screen added
+[33mc262c77[m[33m ([m[1;31morigin/master[m[33m, [m[1;32mmaster[m[33m)[m Add all project files
+[33meefd3aa[m Add all project files
+[33mb61f6bf[m first commit

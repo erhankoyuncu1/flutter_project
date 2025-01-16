@@ -1,6 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
+import 'package:flutter_project/models/product_model.dart';
 import 'package:flutter_project/providers/viewed_list_provider.dart';
 import 'package:flutter_project/widgets/buttons/heart_button_widget.dart';
 import 'package:flutter_project/widgets/product/product_details_widget.dart';
@@ -8,29 +10,74 @@ import 'package:flutter_project/widgets/quantity_bottom_sheet.dart';
 import 'package:flutter_project/widgets/titles/subtitle_text_widget.dart';
 import 'package:flutter_project/widgets/titles/title_text_widget.dart';
 import 'package:provider/provider.dart';
-import '../../models/cart_model.dart';
 import '../../providers/cart_provider.dart';
 
-class CartWidget extends StatelessWidget {
-  final CartItem cartItem;
+class CartWidget extends StatefulWidget {
+  final String productId;
+  final int quantity;
 
   const CartWidget({
     super.key,
-    required this.cartItem,
+    required this.productId,
+    required this.quantity,
   });
+
+  @override
+  State<CartWidget> createState() => _CartWidgetState();
+}
+
+class _CartWidgetState extends State<CartWidget> {
+  ProductModel? _product;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchProductDetails();
+  }
+
+  Future<void> _fetchProductDetails() async {
+    try {
+      final productDoc = await FirebaseFirestore.instance
+          .collection('products')
+          .doc(widget.productId)
+          .get();
+
+      if (productDoc.exists) {
+        setState(() {
+          _product = ProductModel.fromMap(productDoc.data()!);
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint("Error fetching product details: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final cartProvider = Provider.of<CartProvider>(context);
     final viewedListProvider = Provider.of<ViewedListProvider>(context);
-
     Size size = MediaQuery.of(context).size;
+
+    if (_isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    if (_product == null) {
+      return const SizedBox(); // Ürün bulunamadıysa boş widget döndür.
+    }
+
     return FittedBox(
       child: InkWell(
-        onTap: (){
-          viewedListProvider.addProduct(cartItem.product.productId);
-          Navigator.pushNamed(context, ProductDetailsWidget.routName,
-            arguments: cartItem.product.productId
+        onTap: () {
+          viewedListProvider.addProduct(_product!.productId);
+          Navigator.pushNamed(
+            context,
+            ProductDetailsWidget.routName,
+            arguments: _product!.productId,
           );
         },
         child: IntrinsicWidth(
@@ -43,7 +90,7 @@ class CartWidget extends StatelessWidget {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12.0),
                   child: FancyShimmerImage(
-                    imageUrl: cartItem.product.productImage,
+                    imageUrl: _product!.productImage,
                     height: size.height * 0.09,
                     width: size.width * 0.2,
                   ),
@@ -59,7 +106,7 @@ class CartWidget extends StatelessWidget {
                           SizedBox(
                             width: size.width * 0.4,
                             child: TitleTextWidget(
-                              label: cartItem.product.productTitle,
+                              label: _product!.productTitle,
                               fontSize: 16,
                             ),
                           ),
@@ -67,22 +114,21 @@ class CartWidget extends StatelessWidget {
                             children: [
                               IconButton(
                                 onPressed: () {
-                                  cartProvider.removeItem(cartItem.product.productId.toString());
+                                  cartProvider.removeItem(widget.productId);
                                 },
                                 icon: const Icon(IconlyLight.closeSquare, size: 20),
                               ),
-                              HeartButtonWidget(productId: cartItem.product.productId)
+                              HeartButtonWidget(productId: widget.productId),
                             ],
-                          )
+                          ),
                         ],
                       ),
                       Row(
                         children: [
                           SubTitleTextWidget(
-                            label: "\$${cartItem.product.productPrice.toStringAsFixed(2)}",
+                            label: "\$${_product!.productPrice.toStringAsFixed(2)}",
                             color: Colors.green,
                           ),
-                          //quantity select button
                           const Spacer(),
                           OutlinedButton.icon(
                             onPressed: () async {
@@ -91,17 +137,16 @@ class CartWidget extends StatelessWidget {
                                 shape: const RoundedRectangleBorder(
                                   borderRadius: BorderRadius.vertical(
                                     top: Radius.circular(40),
-                                    bottom: Radius.zero,
                                   ),
                                 ),
                                 context: context,
                                 builder: (context) {
                                   return QuantityBottomSheet(
-                                    availableQuantity: cartItem.product.productQuantity.toInt(),
-                                    quantity: cartItem.quantity,
+                                    availableQuantity: _product!.productQuantity.toInt(),
+                                    quantity: widget.quantity,
                                     onQuantityChanged: (newQuantity) {
                                       cartProvider.updateQuantity(
-                                        cartItem.product.productId.toString(),
+                                        widget.productId,
                                         newQuantity,
                                       );
                                     },
@@ -111,8 +156,8 @@ class CartWidget extends StatelessWidget {
                             },
                             icon: const Icon(IconlyLight.arrowDown2),
                             label: Text(
-                              "Quantity: ${cartItem.quantity}",
-                              style: TextStyle(
+                              "Quantity: ${widget.quantity}",
+                              style: const TextStyle(
                                 fontSize: 12,
                               ),
                             ),
@@ -122,18 +167,17 @@ class CartWidget extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(25),
                               ),
                             ),
-                          )
+                          ),
                         ],
                       ),
                     ],
                   ),
-                )
+                ),
               ],
             ),
           ),
         ),
-      )
-
+      ),
     );
   }
 }

@@ -12,6 +12,7 @@ import 'package:flutter_project/services/assets_manager.dart';
 import 'package:flutter_project/services/cloudinary_service.dart';
 import 'package:flutter_project/widgets/loading_widget.dart';
 import 'package:flutter_project/widgets/titles/subtitle_text_widget.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../../models/user_model.dart';
@@ -63,36 +64,6 @@ class _EditUploadUserScreenState extends State<EditUploadUserScreen> {
     super.dispose();
   }
 
-  Future<void> pickImage() async {
-    final imagePicker = ImagePicker();
-    await AppFunctions.imagePickerDialog(
-      context: context,
-      cameraFct: () async {
-        final pickedImage =
-        await imagePicker.pickImage(source: ImageSource.camera);
-        if (pickedImage != null) {
-          setState(() {
-            _userImage = pickedImage;
-          });
-        }
-      },
-      galleryFct: () async {
-        final pickedImage =
-        await imagePicker.pickImage(source: ImageSource.gallery);
-        if (pickedImage != null) {
-          setState(() {
-            _userImage = pickedImage;
-          });
-        }
-      },
-      removeFct: () {
-        setState(() {
-          _userImage = null;
-        });
-      },
-    );
-  }
-
   Future<void> saveUser() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -138,22 +109,19 @@ class _EditUploadUserScreenState extends State<EditUploadUserScreen> {
           password: _userPasswordController.text.trim(),
         );
         final userId = userCredential.user!.uid;
-
-        final newUser = UserModel(
-          userId: userId,
-          userName: _userNameController.text.trim(),
-          userEmail: _userEmailController.text.trim(),
-          userPassword: widget.userModel!.userPassword,
-          userImage: uploadedImageUrl ?? "",
-          createdAt: Timestamp.now(),
-          isAdmin: _isAdmin.value,
-          userCart: [],
-          userFavoriteList: [],
-          userAddressList: [],
-        );
-        await userProvider.addUser(newUser);
-      }
-
+        await FirebaseFirestore.instance.collection("users").doc(userId).set({
+          'userId': userId,
+          'userName': _userNameController.text.trim(),
+          'userImage': uploadedImageUrl ?? "",
+          'userEmail': _userEmailController.text.trim().toLowerCase(),
+          'userPassword': _userPasswordController.text.trim(),
+          'isAdmin': false,
+          'createdAt': Timestamp.now(),
+          'userCart': [],
+          'userFavoriteList': [],
+          'userAddressList': []
+        });}
+      Fluttertoast.showToast(msg: "User added successfully");
       Navigator.pop(context);
     } catch (error) {
       AppFunctions.showErrorOrWarningDialog(
@@ -165,6 +133,36 @@ class _EditUploadUserScreenState extends State<EditUploadUserScreen> {
     } finally {
       setState(() => isLoading = false);
     }
+  }
+
+  Future<void> pickImage() async {
+    final imagePicker = ImagePicker();
+    await AppFunctions.imagePickerDialog(
+      context: context,
+      cameraFct: () async {
+        final pickedImage =
+        await imagePicker.pickImage(source: ImageSource.camera);
+        if (pickedImage != null) {
+          setState(() {
+            _userImage = pickedImage;
+          });
+        }
+      },
+      galleryFct: () async {
+        final pickedImage =
+        await imagePicker.pickImage(source: ImageSource.gallery);
+        if (pickedImage != null) {
+          setState(() {
+            _userImage = pickedImage;
+          });
+        }
+      },
+      removeFct: () {
+        setState(() {
+          _userImage = null;
+        });
+      },
+    );
   }
 
   @override

@@ -1,55 +1,109 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_project/models/cart_model.dart';
-import 'package:flutter_project/models/product_model.dart';
 
 class CartProvider with ChangeNotifier {
-  final Map<String, CartItem> _items = {};
+  final String? userId = FirebaseAuth.instance.currentUser?.uid;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Map<String, CartItem> get items => _items;
+  final Map<String, int> _items = {}; // productId -> quantity
+
+  Map<String, int> get items => _items;
 
   int get totalItems {
-    return _items.values.fold(0, (sum, item) => sum + item.quantity);
+    return _items.values.fold(0, (sum, quantity) => sum + quantity);
   }
 
-  double get totalPrice {
-    return _items.values
-        .fold(0.0, (sum, item) => sum + (item.product.productPrice * item.quantity));
-  }
+  Future<double> get totalPrice async {
+    double total = 0.0;
 
-  void addItem(ProductModel product, int quantity) {
-    if (_items.containsKey(product.productId.toString())) {
-      _items[product.productId.toString()] = CartItem(
-        product: product,
-        quantity: _items[product.productId.toString()]!.quantity + quantity,
-      );
-    } else {
-      _items[product.productId.toString()] =
-          CartItem(product: product, quantity: quantity);
+    try {
+      // Tüm ürünler için fiyat bilgilerini al
+      for (var productId in _items.keys) {
+        final productDoc = await _firestore.collection('products').doc(productId).get();
+        if (productDoc.exists) {
+          final productData = productDoc.data();
+          final price = productData?['productPrice'] ?? 0.0;
+          total += price * _items[productId]!;
+        }
+      }
+    } catch (e) {
+      debugPrint('Error calculating total price: $e');
     }
-    notifyListeners();
+
+    return total;
   }
 
-  void removeItem(String productId) {
-    _items.remove(productId);
-    notifyListeners();
+
+  Future<void> fetchCartFromFirestore() async {
+    try {
+      final userDoc = await _firestore.collection('users').doc(userId).get();
+      if (userDoc.exists) {
+        final List<dynamic> cartData = userDoc.data()!['userCart'] ?? [];
+        _items.clear();
+        for (var item in cartData) {
+          final productId = item['productId'];
+          final quantity = item['quantity'];
+          _items[productId] = quantity;
+        }
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('Error fetching cart: $e');
+    }
   }
 
-  bool isProductInCart(String productId) {
-    return items.containsKey(productId);
-  }
-
-  void updateQuantity(String productId, int quantity) {
+  Future<void> addItem(String productId, int quantity) async {
     if (_items.containsKey(productId)) {
-      _items[productId] = CartItem(
-        product: _items[productId]!.product,
-        quantity: quantity,
-      );
+      _items[productId] = _items[productId]! + quantity;
+    } else {
+      _items[productId] = quantity;
+    }
+    await _updateFirestoreCart();
+    notifyListeners();
+  }
+
+  Future<void> removeItem(String productId) async {
+    if (_items.containsKey(productId)) {
+      _items.remove(productId);
+      await _updateFirestoreCart();
       notifyListeners();
     }
   }
 
-  void clearCart() {
+  Future<void> updateQuantity(String productId, int quantity) async {
+    if (_items.containsKey(productId)) {
+      if (quantity > 0) {
+        _items[productId] = quantity;
+      } else {
+        _items.remove(productId);
+      }
+      await _updateFirestoreCart();
+      notifyListeners();
+    }
+  }
+
+  Future<void> clearCart() async {
     _items.clear();
+    await _updateFirestoreCart();
     notifyListeners();
+  }
+
+  Future<void> _updateFirestoreCart() async {
+    try {
+      final List<Map<String, dynamic>> cartData = _items.entries
+          .map((entry) => {
+        'productId': entry.key,
+        'quantity': entry.value,
+      })
+          .toList();
+      await _firestore.collection('users').doc(userId).update({'userCart': cartData});
+    } catch (e) {
+      debugPrint('Error updating Firestore cart: $e');
+    }
+  }
+
+  bool isProductInCart(String productId) {
+    return _items.containsKey(productId);
   }
 }

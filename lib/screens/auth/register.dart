@@ -84,6 +84,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           isLoading = true;
         });
 
+        // Kullanıcıyı Firebase Authentication'a kaydet
         await auth.createUserWithEmailAndPassword(
           email: _emailController.text.trim(),
           password: _passwordController.text.trim(),
@@ -91,18 +92,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
         final User? user = auth.currentUser;
         final String uid = user!.uid;
 
+        // Resim yükleme işlemi
         String? imageUrl = "";
         if (_pickedImage != null) {
           final cloudinaryService = CloudinaryService();
           imageUrl = await cloudinaryService.uploadImage(File(_pickedImage!.path));
         }
 
+        // Kullanıcı verilerini Firestore'a kaydet
         await FirebaseFirestore.instance.collection("users").doc(uid).set({
           'userId': uid,
-          'userName': _nameController.text,
+          'userName': _nameController.text.trim(),
           'userImage': imageUrl ?? "",
-          'userEmail': _emailController.text.toLowerCase(),
-          'userPassword': _passwordController.text,
+          'userEmail': _emailController.text.trim().toLowerCase(),
+          'userPassword': _passwordController.text.trim(),
           'isAdmin': false,
           'createdAt': Timestamp.now(),
           'userCart': [],
@@ -133,6 +136,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       }
     }
   }
+
 
   Future<void> localImagePicker() async {
     final ImagePicker imagePicker = ImagePicker();
