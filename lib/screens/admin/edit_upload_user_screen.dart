@@ -99,6 +99,7 @@ class _EditUploadUserScreenState extends State<EditUploadUserScreen> {
           isAdmin: _isAdmin.value,
           userCart: widget.userModel?.userCart ?? [],
           userFavoriteList: widget.userModel?.userFavoriteList ?? [],
+          userViewedList: widget.userModel?.userViewedList ?? [],
           userAddressList: widget.userModel?.userAddressList ?? [],
         );
         await userProvider.updateUser(userModel);

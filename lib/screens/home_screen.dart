@@ -22,6 +22,8 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
+          leading: SizedBox.shrink(),
+          titleSpacing: -10,
           title: const AppNameText(
             fontSize: 20,
           ),

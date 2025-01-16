@@ -33,6 +33,8 @@ class UserProvider with ChangeNotifier {
           List<String>.from(data['userFavoriteList'] ?? []),
           userAddressList:
           List<String>.from(data['userAddressList'] ?? []),
+          userViewedList:
+          List<String>.from(data['userViewedList'] ?? []),
         ));
       }
     } on FirebaseException catch (error) {
@@ -75,6 +77,8 @@ class UserProvider with ChangeNotifier {
         userCart: List<Map<String, dynamic>>.from(data['userCart'] ?? []),
         userFavoriteList:
         List<String>.from(data['userFavoriteList'] ?? []),
+        userViewedList:
+        List<String>.from(data['userViewedList'] ?? []),
         userAddressList:
         List<String>.from(data['userAddressList'] ?? []),
       );

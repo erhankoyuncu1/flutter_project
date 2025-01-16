@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 import '../models/favorite_list_model.dart';
 
@@ -17,22 +16,8 @@ class FavoriteListProvider with ChangeNotifier {
     return _favoriteListItems.length;
   }
 
-  void isUserLoggedIn() {
-    if (_userId == null) {
-      Fluttertoast.showToast(
-          msg: "Please login first.!",
-          backgroundColor: Colors.red,
-          textColor: Colors.white
-      );
-      return; // Eğer kullanıcı giriş yapmamışsa işlemi durduruyoruz
-    }
-  }
 
   Future<void> addOrRemoveProduct(String productId) async {
-    // Giriş yapılmamışsa işlem yapma
-    isUserLoggedIn();
-    if (_userId == null) return;  // Giriş yapılmamışsa işlemi burada durduruyoruz
-
     try {
       final DocumentReference userDoc = FirebaseFirestore.instance.collection('users').doc(_userId);
 
@@ -44,11 +29,9 @@ class FavoriteListProvider with ChangeNotifier {
       List<dynamic> favoriteList = userSnapshot['userFavoriteList'] ?? [];
 
       if (favoriteList.contains(productId)) {
-        // Remove product from Firestore
         favoriteList.remove(productId);
         _favoriteListItems.remove(productId);
       } else {
-        // Add product to Firestore
         favoriteList.add(productId);
         _favoriteListItems.putIfAbsent(
           productId,
@@ -64,10 +47,6 @@ class FavoriteListProvider with ChangeNotifier {
   }
 
   Future<void> removeItem(String productId) async {
-    // Giriş yapılmamışsa işlem yapma
-    isUserLoggedIn();
-    if (_userId == null) return;  // Giriş yapılmamışsa işlemi burada durduruyoruz
-
     try {
       final DocumentReference userDoc = FirebaseFirestore.instance.collection('users').doc(_userId);
 
@@ -94,16 +73,21 @@ class FavoriteListProvider with ChangeNotifier {
     return _favoriteListItems.containsKey(productId);
   }
 
-  void clearFavoriteList() {
-    _favoriteListItems.clear();
-    notifyListeners();
+  Future<void> clearFavoriteList() async {
+    try {
+      final userDoc = FirebaseFirestore.instance.collection('users').doc(_userId);
+
+      await userDoc.update({'userFavoriteList': []});
+
+      _favoriteListItems.clear();
+
+      notifyListeners();
+    } catch (error) {
+      debugPrint('Error clearing viewed list: $error');
+    }
   }
 
   Future<void> fetchAllFavoriteProducts() async {
-    // Giriş yapılmamışsa işlem yapma
-    isUserLoggedIn();
-    if (_userId == null) return;  // Giriş yapılmamışsa işlemi burada durduruyoruz
-
     try {
       final DocumentSnapshot userDoc = await FirebaseFirestore.instance
           .collection('users')

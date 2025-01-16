@@ -27,8 +27,8 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   void initState(){
-    loadProducts();
     super.initState();
+    loadProducts();
     searchTextController = TextEditingController();
     searchTextController.addListener((){
       setState(() {

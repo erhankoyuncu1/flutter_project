@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_project/providers/address_provider.dart';
 import 'package:flutter_project/providers/cart_provider.dart';
 import 'package:flutter_project/providers/favorite_list_provider.dart';
 import 'package:flutter_project/providers/product_provider.dart';
@@ -15,6 +16,7 @@ import 'package:flutter_project/screens/admin/edit_upload_user_screen.dart';
 import 'package:flutter_project/screens/auth/forgot_password_screen.dart';
 import 'package:flutter_project/screens/auth/login_screen.dart';
 import 'package:flutter_project/screens/auth/register.dart';
+import 'package:flutter_project/screens/init_screens/addresses_screen.dart';
 import 'package:flutter_project/screens/init_screens/favorite_products_screen.dart';
 import 'package:flutter_project/screens/init_screens/viewed_recently_products_screen.dart';
 import 'package:flutter_project/screens/orders_screen.dart';
@@ -55,6 +57,9 @@ class MyApp extends StatelessWidget {
       }),
       ChangeNotifierProvider(create: (_){
         return UserProvider();
+      }),
+      ChangeNotifierProvider(create: (_){
+        return AddressProvider();
       })
     ],
     child: Consumer<ThemeProvider>(builder:(context, themeProvider, child){
@@ -70,6 +75,7 @@ class MyApp extends StatelessWidget {
           ViewedRecentlyProductsScreen.routName : (context) => const ViewedRecentlyProductsScreen(),
           OrdersScreen.routName : (context) => const OrdersScreen(),
           FavoriteProductsScreen.routName : (context) => const FavoriteProductsScreen(),
+          AddressesScreen.routName : (context) => const AddressesScreen(),
           RegisterScreen.routName : (context) => const RegisterScreen(),
           LoginScreen.routName : (context) => const LoginScreen(),
           ForgetPasswordScreen.routName : (context) => const ForgetPasswordScreen(),

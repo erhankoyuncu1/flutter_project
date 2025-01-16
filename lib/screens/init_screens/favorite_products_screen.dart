@@ -61,6 +61,21 @@ class _FavoriteProductsScreenState extends State<FavoriteProductsScreen> {
         title: AppNameText(
           titleText: "Favorite Products (${favoriteListProvider.totalItems})",
         ),
+        actions: [
+          if (favoriteListProvider.getProducts.isNotEmpty)
+            TextButton(
+              onPressed: () {
+                _showClearConfirmationDialog(context, favoriteListProvider);
+              },
+              child: const Text(
+                "Clear all",
+                style: TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            )
+        ],
       ),
       body: LoadingWidget(
         isLoading: isLoading,
@@ -88,6 +103,35 @@ class _FavoriteProductsScreenState extends State<FavoriteProductsScreen> {
           },
         ),
       )
+    );
+  }
+
+  void _showClearConfirmationDialog(
+      BuildContext context, FavoriteListProvider provider) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Clear All Favorite Products"),
+        content: const Text("Are you sure you want to clear all favorite products?"),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              provider.clearFavoriteList();
+              Navigator.of(ctx).pop();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+            child: const Text("Clear All",style: TextStyle(color: Colors.white),),
+          ),
+        ],
+      ),
     );
   }
 }

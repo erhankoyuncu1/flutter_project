@@ -109,6 +109,7 @@ class AssetsManager {
   static String addNewProduct = "$newImagesPath/add_new_product.png";
   static String allProducts = "$newImagesPath/all_products.png";
   static String orders = "$newImagesPath/orders.png";
+  static String home = "$newImagesPath/home.png";
 
 
 }

@@ -10,6 +10,7 @@ class UserModel {
   final Timestamp createdAt;
   final List<Map<String, dynamic>> userCart;
   final List<String> userFavoriteList;
+  final List<String> userViewedList;
   final List<String> userAddressList;
 
   UserModel({
@@ -22,6 +23,7 @@ class UserModel {
     required this.createdAt,
     required this.userCart,
     required this.userFavoriteList,
+    required this.userViewedList,
     required this.userAddressList,
   });
 
@@ -37,6 +39,7 @@ class UserModel {
       createdAt: map['createdAt'] ?? Timestamp.now(),
       userCart: List<Map<String, dynamic>>.from(map['userCart'] ?? []),
       userFavoriteList: List<String>.from(map['userFavoriteList'] ?? []),
+      userViewedList: List<String>.from(map['userViewedList'] ?? []),
       userAddressList: List<String>.from(map['userAddressList'] ?? []),
     );
   }
@@ -53,6 +56,7 @@ class UserModel {
       'createdAt': createdAt,
       'userCart': userCart,
       'userFavoriteList': userFavoriteList,
+      'userViewedList': userViewedList,
       'userAddressList': userAddressList,
     };
   }
