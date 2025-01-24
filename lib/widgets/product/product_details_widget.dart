@@ -1,14 +1,15 @@
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/product_model.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/favorite_list_provider.dart';
 import '../../providers/product_provider.dart';
-import '../../providers/theme_provider.dart';
 import '../titles/app_name_text_widget.dart';
 import '../titles/subtitle_text_widget.dart';
 import '../titles/title_text_widget.dart';
@@ -25,12 +26,13 @@ class _ProductDetailsState extends State<ProductDetailsWidget> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    final themeProvider = Provider.of<ThemeProvider>(context);
     final productProvider = Provider.of<ProductProvider>(context);
     final cartProvider = Provider.of<CartProvider>(context);
     final favoriteProductProvider = Provider.of<FavoriteListProvider>(context);
 
     String? productId = ModalRoute.of(context)!.settings.arguments as String?;
+
+    User? user = FirebaseAuth.instance.currentUser;
 
     return FutureBuilder<ProductModel?>(
       future: productProvider.fetchProductByProductId(productId!),
@@ -134,9 +136,22 @@ class _ProductDetailsState extends State<ProductDetailsWidget> {
                                       style: const TextStyle(color: Colors.white),
                                     ),
                                     onPressed: () {
-                                      favoriteProductProvider
-                                          .addOrRemoveProduct(
-                                          product.productId);
+                                      if(user == null){
+                                        Fluttertoast.showToast(
+                                          msg: "You need to log in to add products to the favorite list!",
+                                          toastLength: Toast.LENGTH_SHORT,
+                                          gravity: ToastGravity.BOTTOM,
+                                          backgroundColor: Colors.red,
+                                          textColor: Colors.white,
+                                          fontSize: 16.0,
+                                        );
+                                      }
+                                      else{
+                                        favoriteProductProvider
+                                            .addOrRemoveProduct(
+                                            product.productId);
+                                      }
+
                                     },
                                   ),
                                 ),
@@ -158,8 +173,19 @@ class _ProductDetailsState extends State<ProductDetailsWidget> {
                                       style: const TextStyle(color: Colors.white),
                                     ),
                                     onPressed: () {
-                                      // `productId` ve `quantity` parametreleri
-                                      cartProvider.addItem(product.productId, 1);
+                                      if(user == null){
+                                        Fluttertoast.showToast(
+                                          msg: "You need to log in to add products to the cart!",
+                                          toastLength: Toast.LENGTH_SHORT,
+                                          gravity: ToastGravity.BOTTOM,
+                                          backgroundColor: Colors.red,
+                                          textColor: Colors.white,
+                                          fontSize: 16.0,
+                                        );
+                                      }
+                                      else{
+                                        cartProvider.addItem(product.productId, 1);
+                                      }
                                     },
                                   ),
                                 ),

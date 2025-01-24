@@ -97,7 +97,7 @@ class ProductProvider with ChangeNotifier {
         'productDescription': product.productDescription,
         'productImage': product.productImage,
         'productQuantity': product.productQuantity,
-        'createdAt': product.createdAt ?? Timestamp.now(),
+        'createdAt': product.createdAt,
       });
       final index = _products.indexWhere((item) => item.productId == product.productId);
       if (index != -1) {

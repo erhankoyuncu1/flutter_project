@@ -1,8 +1,8 @@
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_project/providers/cart_provider.dart';
 import 'package:flutter_project/providers/product_provider.dart';
 import 'package:flutter_project/providers/viewed_list_provider.dart';
+import 'package:flutter_project/widgets/buttons/cart_button_widget.dart';
 import 'package:flutter_project/widgets/buttons/heart_button_widget.dart';
 import 'package:flutter_project/widgets/product/product_details_widget.dart';
 import 'package:flutter_project/widgets/titles/subtitle_text_widget.dart';
@@ -28,7 +28,6 @@ class _ProductWidgetState extends State<ProductWidget> {
     Size size = MediaQuery.of(context).size;
 
     final productProvider = Provider.of<ProductProvider>(context);
-    final cartProvider = Provider.of<CartProvider>(context);
     final viewedListProvider = Provider.of<ViewedListProvider>(context);
 
     return FutureBuilder<ProductModel?>(
@@ -117,21 +116,7 @@ class _ProductWidgetState extends State<ProductWidget> {
                           padding: const EdgeInsets.only(right: 20),
                           child: Material(
                             borderRadius: BorderRadius.circular(12.0),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(12.0),
-                              onTap: () {
-                                cartProvider.addItem(product.productId, 1);
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.all(2.0),
-                                child: Icon(
-                                  cartProvider.isProductInCart(product.productId)
-                                      ? Icons.check
-                                      : Icons.shopping_cart_outlined,
-                                  color: Colors.blue,
-                                ),
-                              ),
-                            ),
+                            child: CartButtonWidget(productId: product.productId)
                           ),
                         ),
                       ],

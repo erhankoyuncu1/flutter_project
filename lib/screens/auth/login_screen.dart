@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -244,6 +242,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               backgroundColor: Colors.redAccent
                             ),
                             onPressed: () async{
+                              await FirebaseAuth.instance.signOut();
                               Navigator.of(context).pushNamed(RootScreen.routName);
                             },
                           ),

@@ -6,7 +6,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:flutter_project/constans/validator.dart';
-import 'package:flutter_project/providers/theme_provider.dart';
 import 'package:flutter_project/providers/user_provider.dart';
 import 'package:flutter_project/services/assets_manager.dart';
 import 'package:flutter_project/services/cloudinary_service.dart';
@@ -94,7 +93,7 @@ class _EditUploadUserScreenState extends State<EditUploadUserScreen> {
           userName: _userNameController.text.trim(),
           userEmail: _userEmailController.text.trim(),
           userPassword: widget.userModel!.userPassword,
-          userImage: uploadedImageUrl ?? widget.userModel!.userImage ?? "",
+          userImage: uploadedImageUrl ?? widget.userModel!.userImage,
           createdAt: widget.userModel!.createdAt,
           isAdmin: _isAdmin.value,
           userCart: widget.userModel?.userCart ?? [],
@@ -121,8 +120,13 @@ class _EditUploadUserScreenState extends State<EditUploadUserScreen> {
           'userCart': [],
           'userFavoriteList': [],
           'userAddressList': []
-        });}
-      Fluttertoast.showToast(msg: "User added successfully");
+        });
+        Fluttertoast.showToast(
+          msg: "User added successfully",
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          gravity: ToastGravity.BOTTOM);
+      }
       Navigator.pop(context);
     } catch (error) {
       AppFunctions.showErrorOrWarningDialog(
@@ -168,7 +172,6 @@ class _EditUploadUserScreenState extends State<EditUploadUserScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
     final size = MediaQuery.of(context).size;
 
     return GestureDetector(
@@ -233,7 +236,7 @@ class _EditUploadUserScreenState extends State<EditUploadUserScreen> {
                           ClipRRect(
                             borderRadius: BorderRadius.circular(12),
                             child: FancyShimmerImage(
-                              imageUrl: _userImage?.path ?? widget.userModel!.userImage!,
+                              imageUrl: _userImage?.path ?? widget.userModel!.userImage,
                               height: size.height * 0.2,
                               width: size.width * 0.2,
                             ),

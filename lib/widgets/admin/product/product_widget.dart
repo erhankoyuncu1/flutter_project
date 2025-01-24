@@ -52,9 +52,7 @@ class _AdminProductWidgetState extends State<AdminProductWidget> {
             return Center(child: Text('No product found'));
           } else {
             final product = snapshot.data!;
-            return product == null
-            ? SizedBox.shrink()
-            : Padding(
+            return Padding(
           padding: EdgeInsets.all(1.0),
             child: GestureDetector(
               onTap: () async {

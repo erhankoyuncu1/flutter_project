@@ -51,7 +51,7 @@ class _SearchScreenState extends State<SearchScreen> {
       setState(() {
         _isLoading = true;
       });
-      productProvider.fetchProducts();
+      await productProvider.fetchProducts();
       productList = productProvider.getProducts;
       filteredCategoryName = ModalRoute.of(context)!.settings.arguments as String?;
       productList = filteredCategoryName == null ?

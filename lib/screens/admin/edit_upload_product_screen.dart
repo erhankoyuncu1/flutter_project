@@ -45,7 +45,7 @@ class _EditUploadProductScreenState extends State<EditUploadProductScreen> {
 
   String? productNetworkImage;
 
-  final CloudinaryService _cloudinaryService = CloudinaryService();  // <-- Bu satır eklendi
+  final CloudinaryService _cloudinaryService = CloudinaryService();
 
   @override
   void initState() {

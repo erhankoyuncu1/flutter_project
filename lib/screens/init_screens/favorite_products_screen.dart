@@ -56,7 +56,7 @@ class _FavoriteProductsScreenState extends State<FavoriteProductsScreen> {
               Navigator.pop(context);
             }
           },
-          icon: const Icon(IconlyLight.arrowLeft2),
+          icon: const Icon(IconlyLight.arrowLeft2,color: Colors.purple,size: 28,),
         ),
         title: AppNameText(
           titleText: "Favorite Products (${favoriteListProvider.totalItems})",

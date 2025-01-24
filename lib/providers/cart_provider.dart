@@ -18,7 +18,6 @@ class CartProvider with ChangeNotifier {
     double total = 0.0;
 
     try {
-      // Tüm ürünler için fiyat bilgilerini al
       for (var productId in _items.keys) {
         final productDoc = await _firestore.collection('products').doc(productId).get();
         if (productDoc.exists) {

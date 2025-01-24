@@ -55,7 +55,7 @@ class FavoriteProductWidget extends StatelessWidget {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(12.0),
                       child: FancyShimmerImage(
-                        imageUrl: product!.productImage,
+                        imageUrl: product.productImage,
                         height: size.height*0.09,
                         width: size.width*0.2,
                       ),

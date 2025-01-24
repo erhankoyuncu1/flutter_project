@@ -143,6 +143,7 @@ class UserProvider with ChangeNotifier {
         msg: "User updated successfully!",
         backgroundColor: Colors.green,
         textColor: Colors.white,
+        gravity: ToastGravity.BOTTOM
       );
     } catch (error) {
       debugPrint("Error updating user: $error");

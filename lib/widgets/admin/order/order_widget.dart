@@ -1,27 +1,39 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_project/screens/order/order_details_screen.dart';
-import 'package:flutter_project/widgets/titles/subtitle_text_widget.dart';
-import 'package:flutter_project/widgets/titles/title_text_widget.dart';
+import 'package:flutter_project/models/order_model.dart';
+import 'package:flutter_project/providers/user_provider.dart';
+import 'package:flutter_project/screens/admin/edit_order_screen.dart';
 import 'package:provider/provider.dart';
 
-import '../models/order_model.dart';
-import '../models/product_model.dart';
-import '../providers/product_provider.dart';
+import '../../../models/product_model.dart';
+import '../../../models/user_model.dart';
+import '../../../providers/product_provider.dart';
+import '../../titles/subtitle_text_widget.dart';
+import '../../titles/title_text_widget.dart';
 
 class OrderWidget extends StatelessWidget {
   final OrderModel order;
-
-  const OrderWidget({super.key, required this.order});
+  const OrderWidget({
+    super.key,
+    required this.order
+  });
 
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     final productProvider = Provider.of<ProductProvider>(context);
+    final userProvider = Provider.of<UserProvider>(context);
     final productId = order.products.isNotEmpty ? order.products[0]['productId'] : null;
 
     return InkWell(
       onTap: () {
-        Navigator.pushNamed(context, OrderDetailsScreen.routName,arguments: order.id);
+        Navigator.push(context, MaterialPageRoute(
+            builder: (context) {
+              return EditOrderScreen(
+                order: order,
+              );
+            }
+        )
+        );
       },
       child: Card(
         shape: RoundedRectangleBorder(
@@ -66,9 +78,28 @@ class OrderWidget extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          TitleTextWidget(
-                            label: "Order Address",
-                            fontSize: 14,
+                          FutureBuilder<UserModel?>(
+                            future: userProvider.fetchUserInfoById(order.userId),
+                            builder: (context, userSnapshot) {
+                              if (userSnapshot.connectionState == ConnectionState.waiting) {
+                                return CircularProgressIndicator();
+                              } else if (userSnapshot.hasError) {
+                                return Text('Error: ${userSnapshot.error}');
+                              } else if (userSnapshot.hasData && userSnapshot.data != null) {
+                                final user = userSnapshot.data!;
+                                return Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    TitleTextWidget(
+                                      label: user.userName,
+                                      fontSize: 14,
+                                    ),
+                                  ],
+                                );
+                              } else {
+                                return Text('User not found');
+                              }
+                            },
                           ),
                           SubTitleTextWidget(
                             label: order.orderDate.toDate().toString().split(" ")[0],

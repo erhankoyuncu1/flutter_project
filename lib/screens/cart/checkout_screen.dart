@@ -3,6 +3,7 @@ import 'package:flutter_project/widgets/titles/subtitle_text_widget.dart';
 import 'package:flutter_project/widgets/titles/title_text_widget.dart';
 import 'package:provider/provider.dart';
 import '../../providers/cart_provider.dart';
+import '../order/order_creation_screen.dart';
 
 class CartCheckout extends StatelessWidget {
   const CartCheckout({super.key});
@@ -36,7 +37,7 @@ class CartCheckout extends StatelessWidget {
                       ),
                     ),
                     FutureBuilder<double>(
-                      future: cartProvider.totalPrice, // Asenkron işlem burada çağrılır
+                      future: cartProvider.totalPrice,
                       builder: (context, snapshot) {
                         if (snapshot.connectionState == ConnectionState.waiting) {
                           return SubTitleTextWidget(
@@ -73,12 +74,28 @@ class CartCheckout extends StatelessWidget {
                 ),
               ),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () async {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const OrderCreationScreen(),
+                    ),
+                  );
+
+                  if (result != null && result is Map<String, String>) {
+                    final address = result['address'];
+                    final paymentMethod = result['paymentMethod'];
+
+                    debugPrint('Order Address: $address');
+                    debugPrint('Payment Method: $paymentMethod');
+                  }
+                },
                 child: const Text(
                   "Checkout",
                   style: TextStyle(color: Colors.green),
                 ),
               ),
+
             ],
           ),
         ),

@@ -1,10 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_project/screens/admin/all_orders_screen.dart';
 import 'package:flutter_project/screens/admin/all_product_screen.dart';
 import 'package:flutter_project/screens/admin/all_users_screen.dart';
 import 'package:flutter_project/screens/admin/edit_upload_user_screen.dart';
 import 'package:flutter_project/screens/auth/login_screen.dart';
-import 'package:flutter_project/screens/orders_screen.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../../screens/admin/edit_upload_product_screen.dart';
 import '../../services/assets_manager.dart';
@@ -40,7 +40,7 @@ class DashboardButtonModel {
         text: "View Orders",
         imagePath: AssetsManager.orders,
         onPressed: () {
-          Navigator.pushNamed(context, OrdersScreen.routName);
+          Navigator.pushNamed(context, AllOrdersScreen.routName);
         },
       ),
       DashboardButtonModel(

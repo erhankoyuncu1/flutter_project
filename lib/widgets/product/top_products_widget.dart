@@ -1,8 +1,8 @@
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_project/models/product_model.dart';
-import 'package:flutter_project/providers/cart_provider.dart';
 import 'package:flutter_project/providers/viewed_list_provider.dart';
+import 'package:flutter_project/widgets/buttons/cart_button_widget.dart';
 import 'package:flutter_project/widgets/buttons/heart_button_widget.dart';
 import 'package:flutter_project/widgets/product/product_details_widget.dart';
 import 'package:flutter_project/widgets/titles/subtitle_text_widget.dart';
@@ -15,7 +15,6 @@ class TopProductsWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     final productModel = Provider.of<ProductModel>(context);
-    final cartProvider = Provider.of<CartProvider>(context);
     final viewedListProvider = Provider.of<ViewedListProvider>(context);
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
@@ -74,14 +73,7 @@ class TopProductsWidget extends StatelessWidget {
                           const SizedBox(
                             width: 20,
                           ),
-                          IconButton(
-                            onPressed: (){
-                              cartProvider.addItem(productModel.productId, 1);
-                            },
-                            icon:cartProvider.isProductInCart(productModel.productId)
-                              ? Icon(Icons.check)
-                              : Icon(Icons.shopping_cart_outlined,color: Colors.blue,)
-                          )
+                          CartButtonWidget(productId: productModel.productId)
                         ],
                       ),
                     )

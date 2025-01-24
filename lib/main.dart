@@ -3,14 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_project/providers/address_provider.dart';
 import 'package:flutter_project/providers/cart_provider.dart';
 import 'package:flutter_project/providers/favorite_list_provider.dart';
+import 'package:flutter_project/providers/order_provider.dart';
 import 'package:flutter_project/providers/product_provider.dart';
 import 'package:flutter_project/providers/theme_provider.dart';
 import 'package:flutter_project/providers/user_provider.dart';
 import 'package:flutter_project/providers/viewed_list_provider.dart';
 import 'package:flutter_project/root_screen.dart';
+import 'package:flutter_project/screens/admin/all_orders_screen.dart';
 import 'package:flutter_project/screens/admin/all_product_screen.dart';
 import 'package:flutter_project/screens/admin/all_users_screen.dart';
 import 'package:flutter_project/screens/admin/dashboard_screen.dart';
+import 'package:flutter_project/screens/admin/edit_order_screen.dart';
 import 'package:flutter_project/screens/admin/edit_upload_product_screen.dart';
 import 'package:flutter_project/screens/admin/edit_upload_user_screen.dart';
 import 'package:flutter_project/screens/auth/forgot_password_screen.dart';
@@ -19,6 +22,8 @@ import 'package:flutter_project/screens/auth/register.dart';
 import 'package:flutter_project/screens/init_screens/addresses_screen.dart';
 import 'package:flutter_project/screens/init_screens/favorite_products_screen.dart';
 import 'package:flutter_project/screens/init_screens/viewed_recently_products_screen.dart';
+import 'package:flutter_project/screens/order/order_creation_screen.dart';
+import 'package:flutter_project/screens/order/order_details_screen.dart';
 import 'package:flutter_project/screens/orders_screen.dart';
 import 'package:flutter_project/screens/search_screen.dart';
 import 'package:flutter_project/widgets/product/product_details_widget.dart';
@@ -26,6 +31,7 @@ import 'package:provider/provider.dart';
 
 import 'constans/theme_data.dart';
 import 'firebase_options.dart';
+import 'models/order_model.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -60,6 +66,9 @@ class MyApp extends StatelessWidget {
       }),
       ChangeNotifierProvider(create: (_){
         return AddressProvider();
+      }),
+      ChangeNotifierProvider(create: (_){
+        return OrderProvider();
       })
     ],
     child: Consumer<ThemeProvider>(builder:(context, themeProvider, child){
@@ -82,7 +91,11 @@ class MyApp extends StatelessWidget {
           AllProductScreen.routName : (context) => const AllProductScreen(),
           EditUploadProductScreen.routName : (context) => const EditUploadProductScreen(),
           AllUsersScreen.routName : (context) => const AllUsersScreen(),
-          EditUploadUserScreen.routName : (context) =>  EditUploadUserScreen(),
+          EditUploadUserScreen.routName : (context) => const  EditUploadUserScreen(),
+          OrderCreationScreen.routName : (context) => const  OrderCreationScreen(),
+          AllOrdersScreen.routName : (context) => const  AllOrdersScreen(),
+          EditOrderScreen.routName : (context) => const  EditOrderScreen(),
+          OrderDetailsScreen.routName : (context) => const  OrderDetailsScreen(),
         },
       );
 

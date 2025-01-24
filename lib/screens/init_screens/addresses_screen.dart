@@ -93,14 +93,14 @@ class _AddressPageState extends State<AddressesScreen> {
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.purple, // Başlık rengi
+                  color: Colors.purple,
                 ),
               ),
               subtitle: Text(
                 address.fullAddress,
                 style: TextStyle(
                   fontSize: 16,
-                  color: Colors.purple.shade700, // Alt başlık rengi
+                  color: Colors.purple.shade700,
                 ),
               ),
               trailing: Row(

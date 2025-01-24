@@ -1,12 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:flutter_project/providers/favorite_list_provider.dart';
 import 'package:flutter_project/providers/product_provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
-
 import '../../models/product_model.dart';
-import '../../providers/user_provider.dart';
 
 class HeartButtonWidget extends StatefulWidget {
   const HeartButtonWidget({
@@ -27,8 +26,6 @@ class HeartButtonWidget extends StatefulWidget {
   @override
   State<HeartButtonWidget> createState() => _HeartButtonWidgetState();
 }
-  String? userId;
-  bool isLoading = false;
 class _HeartButtonWidgetState extends State<HeartButtonWidget> {
 
   @override
@@ -42,7 +39,7 @@ class _HeartButtonWidgetState extends State<HeartButtonWidget> {
     final productProvider = Provider.of<ProductProvider>(context);
 
     return FutureBuilder<ProductModel?>(
-        future: productProvider.fetchProductByProductId(widget.productId), // Asenkron veri
+        future: productProvider.fetchProductByProductId(widget.productId),
       builder: (context, snapshot) {
       if (snapshot.connectionState == ConnectionState.waiting) {
       return CircularProgressIndicator();
@@ -65,11 +62,24 @@ class _HeartButtonWidgetState extends State<HeartButtonWidget> {
             style: IconButton.styleFrom(
               elevation: 10,
             ),
-            icon: favoriteListProvider.isProductInFavorites(product!.productId) ?
+            icon: favoriteListProvider.isProductInFavorites(product.productId) ?
             Icon(IconlyBold.heart,color: widget.iconColor,size: widget.size,):
             Icon(IconlyLight.heart,color: widget.iconColor,size: widget.size,),
             onPressed: () async {
-              await favoriteListProvider.addOrRemoveProduct(product.productId);
+              User? user = FirebaseAuth.instance.currentUser;
+              if(user == null){
+                Fluttertoast.showToast(
+                  msg: "Please login first!",
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.BOTTOM,
+                  backgroundColor: Colors.red,
+                  textColor: Colors.white,
+                  fontSize: 16.0,
+                );
+              }
+              else{
+                await favoriteListProvider.addOrRemoveProduct(product.productId);
+              }
             },),
         ],
       )

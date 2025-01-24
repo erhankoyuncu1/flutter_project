@@ -1,9 +1,9 @@
-import 'package:flutter/cupertino.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/cart_provider.dart';
-import '../../providers/product_provider.dart';
 
 class CartButtonWidget extends StatefulWidget {
   const CartButtonWidget({
@@ -29,8 +29,6 @@ class _CartButtonWidgetState extends State<CartButtonWidget> {
   @override
   Widget build(BuildContext context) {
     final cartProvider = Provider.of<CartProvider>(context);
-    final productProvider = Provider.of<ProductProvider>(context);
-    final product = productProvider.fetchProductByProductId(widget.productId);
 
     return Container(
       decoration: BoxDecoration(
@@ -56,7 +54,18 @@ class _CartButtonWidgetState extends State<CartButtonWidget> {
               size: widget.size,
             ),
             onPressed: () {
-              if (product != null) {
+              User? user = FirebaseAuth.instance.currentUser;
+              if(user == null){
+                Fluttertoast.showToast(
+                  msg: "Please login first!",
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.BOTTOM,
+                  backgroundColor: Colors.red,
+                  textColor: Colors.white,
+                  fontSize: 16.0,
+                );
+              }
+              else{
                 cartProvider.addItem(widget.productId, 1);
               }
             },
